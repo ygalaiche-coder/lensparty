@@ -18,6 +18,11 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
 
+  // Health check for Railway
+  app.get("/api/health", (_req, res) => {
+    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+
   // Create event
   app.post("/api/events", async (req, res) => {
     try {
