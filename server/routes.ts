@@ -160,6 +160,24 @@ export async function registerRoutes(
     res.json({ fileData: photo.fileData, mimeType: photo.mimeType });
   });
 
+  // Serve photos from R2 (when no public URL is configured)
+  app.get("/api/photos/r2/*", async (req, res) => {
+    try {
+      // Extract the key from the URL path
+      const key = req.params[0];
+      if (!key) return res.status(400).json({ error: "Missing key" });
+
+      const { getSignedReadUrl, isCloudStorageEnabled: isR2 } = await import("./r2");
+      if (!isR2()) return res.status(404).json({ error: "Cloud storage not configured" });
+
+      const signedUrl = await getSignedReadUrl(key);
+      res.redirect(signedUrl);
+    } catch (e: any) {
+      console.error("R2 proxy error:", e);
+      res.status(500).json({ error: "Failed to load photo" });
+    }
+  });
+
   // Like photo
   app.post("/api/photos/:id/like", async (req, res) => {
     const id = parseInt(req.params.id);
