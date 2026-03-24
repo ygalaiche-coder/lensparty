@@ -10,6 +10,44 @@ import { eq, desc } from "drizzle-orm";
 const sqlite = new Database("data.db");
 sqlite.pragma("journal_mode = WAL");
 
+// Auto-create tables on startup
+sqlite.exec(`
+  CREATE TABLE IF NOT EXISTS events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    event_date TEXT,
+    event_type TEXT NOT NULL DEFAULT 'other',
+    description TEXT,
+    code TEXT NOT NULL UNIQUE,
+    host_name TEXT,
+    theme TEXT NOT NULL DEFAULT 'default',
+    moderation_enabled INTEGER NOT NULL DEFAULT 0,
+    guestbook_enabled INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS photos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_id INTEGER NOT NULL,
+    guest_name TEXT,
+    file_name TEXT NOT NULL,
+    file_data TEXT,
+    file_url TEXT,
+    mime_type TEXT NOT NULL,
+    caption TEXT,
+    likes INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS guestbook_entries (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_id INTEGER NOT NULL,
+    guest_name TEXT,
+    message TEXT NOT NULL,
+    type TEXT NOT NULL DEFAULT 'text',
+    created_at TEXT NOT NULL
+  );
+`);
+console.log("[DB] Tables initialized");
+
 export const db = drizzle(sqlite);
 
 export interface IStorage {
