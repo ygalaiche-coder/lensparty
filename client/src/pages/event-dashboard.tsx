@@ -22,6 +22,7 @@ import {
   ArrowLeft,
   Loader2,
   Calendar,
+  Sparkles,
 } from "lucide-react";
 import type { Event, Photo, GuestbookEntry } from "@shared/schema";
 
@@ -177,13 +178,37 @@ export default function EventDashboard() {
 
       <div className="max-w-5xl mx-auto px-4 py-8 gap-8 flex flex-col">
         {/* Event header */}
-        <div>
-          <h1 className="font-display font-bold text-xl text-foreground" data-testid="text-event-name">{event.name}</h1>
-          {event.eventDate && (
-            <div className="flex items-center gap-1.5 mt-1.5 text-muted-foreground text-sm">
-              <Calendar className="w-4 h-4" />
-              {formatDate(event.eventDate)}
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h1 className="font-display font-bold text-xl text-foreground" data-testid="text-event-name">{event.name}</h1>
+              <span
+                className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                  event.plan === "pro"
+                    ? "bg-primary/10 text-primary"
+                    : event.plan === "business"
+                    ? "bg-green-500/10 text-green-600"
+                    : "bg-muted text-muted-foreground"
+                }`}
+                data-testid="badge-plan"
+              >
+                {event.plan || "free"}
+              </span>
             </div>
+            {event.eventDate && (
+              <div className="flex items-center gap-1.5 mt-1.5 text-muted-foreground text-sm">
+                <Calendar className="w-4 h-4" />
+                {formatDate(event.eventDate)}
+              </div>
+            )}
+          </div>
+          {(!event.plan || event.plan === "free") && (
+            <Link href={`/upgrade/${eventId}`}>
+              <Button size="sm" className="gap-1.5 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-primary-foreground font-display font-semibold shadow-lg shadow-primary/20" data-testid="button-upgrade">
+                <Sparkles className="w-3.5 h-3.5" />
+                Upgrade
+              </Button>
+            </Link>
           )}
         </div>
 

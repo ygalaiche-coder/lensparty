@@ -6,6 +6,7 @@ import QRCode from "qrcode";
 import { isCloudStorageEnabled, uploadToR2, deleteFromR2 } from "./r2";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { isPaymentsEnabled, getStripe, PLANS } from "./stripe";
 
 const JWT_SECRET = process.env.JWT_SECRET || "lensparty-dev-secret-change-in-production";
 const COOKIE_NAME = "lensparty_token";
@@ -353,6 +354,101 @@ export async function registerRoutes(
     if (isNaN(eventId)) return res.status(400).json({ error: "Invalid ID" });
     const entries = await storage.getGuestbookEntries(eventId);
     res.json(entries);
+  });
+
+  // --- Payment routes ---
+
+  app.get("/api/plans", (_req, res) => {
+    res.json({
+      enabled: isPaymentsEnabled(),
+      plans: PLANS,
+      publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || null,
+    });
+  });
+
+  app.post("/api/checkout", optionalAuth, async (req, res) => {
+    try {
+      if (!req.userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      const stripe = getStripe();
+      if (!stripe) {
+        return res.status(503).json({ error: "Payments not available" });
+      }
+      const { plan, eventId } = req.body;
+      if (!plan || !eventId) {
+        return res.status(400).json({ error: "Plan and eventId are required" });
+      }
+      if (plan !== "pro" && plan !== "business") {
+        return res.status(400).json({ error: "Invalid plan" });
+      }
+      const event = await storage.getEvent(eventId);
+      if (!event) {
+        return res.status(404).json({ error: "Event not found" });
+      }
+      if (event.userId !== req.userId) {
+        return res.status(403).json({ error: "Not your event" });
+      }
+      const planInfo = PLANS[plan];
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
+      const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              product_data: { name: planInfo.name },
+              unit_amount: planInfo.price,
+            },
+            quantity: 1,
+          },
+        ],
+        success_url: `${baseUrl}/#/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${baseUrl}/#/event/${eventId}`,
+        metadata: {
+          eventId: String(eventId),
+          userId: String(req.userId),
+          plan,
+        },
+      });
+      res.json({ url: session.url });
+    } catch (e: any) {
+      console.error("Checkout error:", e);
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.post("/api/webhooks/stripe", async (req, res) => {
+    const stripe = getStripe();
+    if (!stripe) {
+      return res.status(503).json({ error: "Payments not available" });
+    }
+    const sig = req.headers["stripe-signature"] as string;
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    try {
+      let event;
+      if (webhookSecret && sig) {
+        event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+      } else {
+        event = JSON.parse(req.body.toString());
+      }
+      if (event.type === "checkout.session.completed") {
+        const session = event.data.object;
+        const eventId = parseInt(session.metadata?.eventId);
+        const plan = session.metadata?.plan;
+        if (eventId && plan) {
+          await storage.updateEvent(eventId, {
+            plan,
+            stripePaymentId: session.id,
+            paidAt: new Date().toISOString(),
+          } as any);
+        }
+      }
+      res.json({ received: true });
+    } catch (e: any) {
+      console.error("Webhook error:", e);
+      res.status(400).json({ error: e.message });
+    }
   });
 
   return httpServer;

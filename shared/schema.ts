@@ -22,6 +22,9 @@ export const events = pgTable("events", {
   moderationEnabled: integer("moderation_enabled").notNull().default(0),
   guestbookEnabled: integer("guestbook_enabled").notNull().default(1),
   userId: integer("user_id"),
+  plan: text("plan").notNull().default("free"),
+  stripePaymentId: text("stripe_payment_id"),
+  paidAt: text("paid_at"),
   createdAt: text("created_at").notNull(),
 });
 

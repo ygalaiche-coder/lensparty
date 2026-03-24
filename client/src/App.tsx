@@ -11,6 +11,8 @@ import AuthPage from "@/pages/auth";
 import MyEventsPage from "@/pages/my-events";
 import CreateEventPage from "@/pages/create-event";
 import EventDashboard from "@/pages/event-dashboard";
+import UpgradePage from "@/pages/upgrade";
+import PaymentSuccessPage from "@/pages/payment-success";
 import GuestUploadPage from "@/pages/guest-upload";
 import SlideshowPage from "@/pages/slideshow";
 
@@ -22,6 +24,8 @@ function AppRouter() {
       <Route path="/my-events" component={MyEventsPage} />
       <Route path="/create" component={CreateEventPage} />
       <Route path="/event/:id" component={EventDashboard} />
+      <Route path="/upgrade/:eventId" component={UpgradePage} />
+      <Route path="/payment-success" component={PaymentSuccessPage} />
       <Route path="/g/:code" component={GuestUploadPage} />
       <Route path="/slideshow/:id" component={SlideshowPage} />
       <Route component={NotFound} />

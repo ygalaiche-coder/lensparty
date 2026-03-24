@@ -13,6 +13,9 @@ declare module "http" {
   }
 }
 
+// Stripe webhook needs raw body — must be before express.json()
+app.use("/api/webhooks/stripe", express.raw({ type: "application/json" }));
+
 app.use(
   express.json({
     limit: '50mb',
