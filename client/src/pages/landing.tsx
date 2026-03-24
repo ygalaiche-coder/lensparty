@@ -231,7 +231,7 @@ function ComparisonTable() {
   const rows = [
     { feature: "Free Tier", lp: "✓", gx: "✗", gc: "✗", rp: "✗" },
     { feature: "AI Face Search", lp: "✓", gx: "✗", gc: "✗", rp: "✗" },
-    { feature: "Basic Paid Price", lp: "$14.99", gx: "$49+", gc: "$49+", rp: "$20" },
+    { feature: "Basic Paid Price", lp: "$19.99", gx: "$49+", gc: "$49+", rp: "$20" },
     { feature: "Storage Duration", lp: "24 months", gx: "12 months", gc: "6 months", rp: "6 months" },
     { feature: "Upload Window", lp: "12 months", gx: "90 days", gc: "30 days", rp: "30 days" },
     { feature: "Guest Limit", lp: "Unlimited", gx: "500", gc: "300", rp: "200" },
@@ -491,7 +491,7 @@ export default function LandingPage() {
             <AnimatedSection delay={100}>
               <PricingCard
                 plan="Pro"
-                price="$14.99"
+                price="$19.99"
                 popular
                 cta="Get Pro"
                 features={[
@@ -509,7 +509,7 @@ export default function LandingPage() {
             <AnimatedSection delay={200}>
               <PricingCard
                 plan="Business"
-                price="$29.99"
+                price="$39.99"
                 cta="Get Business"
                 features={[
                   "Everything in Pro",
