@@ -1,14 +1,174 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { insertEventSchema, insertPhotoSchema, insertGuestbookSchema } from "@shared/schema";
+import QRCode from "qrcode";
+
+function generateCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // prefix all routes with /api
-  // use storage to perform CRUD operations on the storage interface
-  // e.g. app.get("/api/items", async (_req, res) => { ... })
+
+  // Create event
+  app.post("/api/events", async (req, res) => {
+    try {
+      const body = insertEventSchema.parse({
+        ...req.body,
+        code: generateCode(),
+      });
+      const event = await storage.createEvent(body);
+      res.json(event);
+    } catch (e: any) {
+      res.status(400).json({ error: e.message });
+    }
+  });
+
+  // Get event by ID (host view)
+  app.get("/api/events/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+    const event = await storage.getEvent(id);
+    if (!event) return res.status(404).json({ error: "Event not found" });
+    res.json(event);
+  });
+
+  // Get event by code (guest view)
+  app.get("/api/events/code/:code", async (req, res) => {
+    const event = await storage.getEventByCode(req.params.code.toUpperCase());
+    if (!event) return res.status(404).json({ error: "Event not found" });
+    res.json(event);
+  });
+
+  // Update event settings
+  app.patch("/api/events/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+    const event = await storage.updateEvent(id, req.body);
+    if (!event) return res.status(404).json({ error: "Event not found" });
+    res.json(event);
+  });
+
+  // Generate QR code for event
+  app.get("/api/events/:id/qr", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+    const event = await storage.getEvent(id);
+    if (!event) return res.status(404).json({ error: "Event not found" });
+
+    const baseUrl = `${req.protocol}://${req.get("host")}`;
+    const guestUrl = `${baseUrl}/#/g/${event.code}`;
+    const qrDataUri = await QRCode.toDataURL(guestUrl, {
+      width: 512,
+      margin: 2,
+      color: { dark: "#1a1a2e", light: "#ffffff" },
+    });
+    res.json({ qrCode: qrDataUri, guestUrl });
+  });
+
+  // Upload photos
+  app.post("/api/events/:id/photos", async (req, res) => {
+    try {
+      const eventId = parseInt(req.params.id);
+      if (isNaN(eventId)) return res.status(400).json({ error: "Invalid ID" });
+      const event = await storage.getEvent(eventId);
+      if (!event) return res.status(404).json({ error: "Event not found" });
+
+      const { photos: photoList } = req.body;
+      if (!Array.isArray(photoList) || photoList.length === 0) {
+        return res.status(400).json({ error: "No photos provided" });
+      }
+
+      const saved = [];
+      for (const p of photoList) {
+        const photo = await storage.addPhoto({
+          eventId,
+          guestName: p.guestName || null,
+          fileName: p.fileName,
+          fileData: p.fileData,
+          mimeType: p.mimeType,
+          caption: p.caption || null,
+        });
+        saved.push(photo);
+      }
+      res.json(saved);
+    } catch (e: any) {
+      res.status(400).json({ error: e.message });
+    }
+  });
+
+  // Get photos for event
+  app.get("/api/events/:id/photos", async (req, res) => {
+    const eventId = parseInt(req.params.id);
+    if (isNaN(eventId)) return res.status(400).json({ error: "Invalid ID" });
+    const eventPhotos = await storage.getPhotos(eventId);
+    // Return photos without fileData for listing (save bandwidth)
+    const lite = eventPhotos.map(({ fileData, ...rest }) => rest);
+    res.json(lite);
+  });
+
+  // Get single photo data
+  app.get("/api/photos/:id/data", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+    const allPhotos = await storage.getPhotos(0); // need a direct query
+    // Actually, let's just get it from db
+    const { db } = await import("./storage");
+    const { photos: photosTable } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    const photo = db.select().from(photosTable).where(eq(photosTable.id, id)).get();
+    if (!photo) return res.status(404).json({ error: "Photo not found" });
+    res.json({ fileData: photo.fileData, mimeType: photo.mimeType });
+  });
+
+  // Like photo
+  app.post("/api/photos/:id/like", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+    const photo = await storage.likePhoto(id);
+    if (!photo) return res.status(404).json({ error: "Photo not found" });
+    res.json(photo);
+  });
+
+  // Delete photo
+  app.delete("/api/photos/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+    await storage.deletePhoto(id);
+    res.json({ success: true });
+  });
+
+  // Guestbook entries
+  app.post("/api/events/:id/guestbook", async (req, res) => {
+    try {
+      const eventId = parseInt(req.params.id);
+      if (isNaN(eventId)) return res.status(400).json({ error: "Invalid ID" });
+      const entry = await storage.addGuestbookEntry({
+        eventId,
+        guestName: req.body.guestName || null,
+        message: req.body.message,
+        type: req.body.type || "text",
+      });
+      res.json(entry);
+    } catch (e: any) {
+      res.status(400).json({ error: e.message });
+    }
+  });
+
+  app.get("/api/events/:id/guestbook", async (req, res) => {
+    const eventId = parseInt(req.params.id);
+    if (isNaN(eventId)) return res.status(400).json({ error: "Invalid ID" });
+    const entries = await storage.getGuestbookEntries(eventId);
+    res.json(entries);
+  });
 
   return httpServer;
 }
