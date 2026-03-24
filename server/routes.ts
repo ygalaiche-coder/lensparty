@@ -165,11 +165,15 @@ export async function registerRoutes(
     try {
       const key = `${req.params.eventPath}/${req.params.eventId}/${req.params.filename}`;
 
-      const { getSignedReadUrl, isCloudStorageEnabled: isR2 } = await import("./r2");
-      if (!isR2()) return res.status(404).json({ error: "Cloud storage not configured" });
+      const { getObjectStream } = await import("./r2");
+      const { stream, contentType } = await getObjectStream(key);
 
-      const signedUrl = await getSignedReadUrl(key);
-      res.redirect(signedUrl);
+      res.setHeader("Content-Type", contentType || "image/jpeg");
+      res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+
+      // Pipe the R2 stream directly to the response
+      const nodeStream = stream as any;
+      nodeStream.pipe(res);
     } catch (e: any) {
       console.error("R2 proxy error:", e);
       res.status(500).json({ error: "Failed to load photo" });

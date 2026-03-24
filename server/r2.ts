@@ -105,3 +105,24 @@ export async function getSignedReadUrl(key: string): Promise<string> {
     { expiresIn: 3600 } // 1 hour
   );
 }
+
+/**
+ * Get a readable stream for a file from R2 (for proxying through the server)
+ */
+export async function getObjectStream(key: string): Promise<{ stream: ReadableStream | NodeJS.ReadableStream; contentType: string }> {
+  if (!s3Client) throw new Error("R2 not configured");
+
+  const response = await s3Client.send(
+    new GetObjectCommand({
+      Bucket: R2_BUCKET_NAME,
+      Key: key,
+    })
+  );
+
+  if (!response.Body) throw new Error("Empty response from R2");
+
+  return {
+    stream: response.Body as any,
+    contentType: response.ContentType || "image/jpeg",
+  };
+}
