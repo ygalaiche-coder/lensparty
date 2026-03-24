@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { getQueryFn } from "@/lib/queryClient";
 import {
   Calendar,
   QrCode,
@@ -330,6 +332,11 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
 export default function LandingPage() {
   const { theme, setTheme } = useTheme();
 
+  const { data: user } = useQuery<{ id: number; email: string; name: string; eventsCount: number } | null>({
+    queryKey: ["/api/auth/me"],
+    queryFn: getQueryFn({ on401: "returnNull" }),
+  });
+
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
@@ -357,6 +364,11 @@ export default function LandingPage() {
           <button onClick={() => scrollTo("features")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</button>
           <button onClick={() => scrollTo("pricing")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</button>
           <button onClick={() => scrollTo("how-it-works")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">How It Works</button>
+          {user && (
+            <Link href="/my-events">
+              <span className="text-sm text-primary font-semibold hover:text-primary/80 transition-colors cursor-pointer" data-testid="link-my-events">My Events</span>
+            </Link>
+          )}
         </nav>
         <div className="ml-auto flex items-center gap-3">
           <button
@@ -366,11 +378,19 @@ export default function LandingPage() {
           >
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
-          <Link href="/create">
-            <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 font-display font-semibold" data-testid="button-nav-create">
-              Create Free Event
-            </Button>
-          </Link>
+          {user ? (
+            <Link href="/my-events">
+              <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 font-display font-semibold" data-testid="button-nav-my-events">
+                My Events
+              </Button>
+            </Link>
+          ) : (
+            <Link href="/login">
+              <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 font-display font-semibold" data-testid="button-nav-create">
+                Get Started Free
+              </Button>
+            </Link>
+          )}
         </div>
       </header>
 
@@ -397,12 +417,12 @@ export default function LandingPage() {
               Free QR code photo sharing for your events. Guests scan, upload, and relive moments — no app needed.
             </p>
             <div className="flex flex-wrap gap-3">
-              <Link href="/create">
+              <Link href="/login">
                 <Button
                   className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-primary-foreground font-display font-semibold px-6 py-5 text-base shadow-lg shadow-primary/25"
                   data-testid="button-hero-create"
                 >
-                  Create Free Event
+                  Get Started Free
                 </Button>
               </Link>
               <Button
@@ -618,12 +638,12 @@ export default function LandingPage() {
         <AnimatedSection className="max-w-2xl mx-auto text-center">
           <h2 className="font-display font-bold text-4xl text-white mb-4">Ready to capture every moment?</h2>
           <p className="text-white/80 text-base mb-8">Create your first event for free. No credit card needed.</p>
-          <Link href="/create">
+          <Link href="/login">
             <Button
               className="bg-white text-primary hover:bg-white/90 font-display font-bold px-8 py-5 text-base shadow-xl"
               data-testid="button-cta-create"
             >
-              Create Free Event
+              Get Started Free
             </Button>
           </Link>
         </AnimatedSection>

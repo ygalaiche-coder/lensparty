@@ -1,9 +1,36 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertEventSchema, insertPhotoSchema, insertGuestbookSchema } from "@shared/schema";
 import QRCode from "qrcode";
 import { isCloudStorageEnabled, uploadToR2, deleteFromR2 } from "./r2";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET || "lensparty-dev-secret-change-in-production";
+const COOKIE_NAME = "lensparty_token";
+const COOKIE_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+declare global {
+  namespace Express {
+    interface Request {
+      userId?: number;
+    }
+  }
+}
+
+function optionalAuth(req: Request, _res: Response, next: NextFunction) {
+  const token = req.cookies?.[COOKIE_NAME];
+  if (token) {
+    try {
+      const payload = jwt.verify(token, JWT_SECRET) as { userId: number };
+      req.userId = payload.userId;
+    } catch (_e) {
+      // Invalid token — ignore, proceed as unauthenticated
+    }
+  }
+  next();
+}
 
 function generateCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -28,12 +55,108 @@ export async function registerRoutes(
     });
   });
 
+  // --- Auth routes ---
+
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const { email, password, name } = req.body;
+      if (!email || !password || !name) {
+        return res.status(400).json({ error: "Email, password, and name are required" });
+      }
+      if (password.length < 6) {
+        return res.status(400).json({ error: "Password must be at least 6 characters" });
+      }
+      const existing = await storage.getUserByEmail(email.toLowerCase().trim());
+      if (existing) {
+        return res.status(409).json({ error: "An account with this email already exists" });
+      }
+      const passwordHash = await bcrypt.hash(password, 10);
+      const user = await storage.createUser({
+        email: email.toLowerCase().trim(),
+        passwordHash,
+        name: name.trim(),
+      });
+      const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "30d" });
+      res.cookie(COOKIE_NAME, token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: COOKIE_MAX_AGE,
+      });
+      res.json({ id: user.id, email: user.email, name: user.name });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      if (!email || !password) {
+        return res.status(400).json({ error: "Email and password are required" });
+      }
+      const user = await storage.getUserByEmail(email.toLowerCase().trim());
+      if (!user) {
+        return res.status(401).json({ error: "Invalid email or password" });
+      }
+      const valid = await bcrypt.compare(password, user.passwordHash);
+      if (!valid) {
+        return res.status(401).json({ error: "Invalid email or password" });
+      }
+      const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "30d" });
+      res.cookie(COOKIE_NAME, token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: COOKIE_MAX_AGE,
+      });
+      res.json({ id: user.id, email: user.email, name: user.name });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.post("/api/auth/logout", (_req, res) => {
+    res.clearCookie(COOKIE_NAME);
+    res.json({ success: true });
+  });
+
+  app.get("/api/auth/me", optionalAuth, async (req, res) => {
+    if (!req.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    const user = await storage.getUserById(req.userId);
+    if (!user) {
+      return res.status(401).json({ error: "User not found" });
+    }
+    const userEvents = await storage.getEventsByUserId(user.id);
+    res.json({ id: user.id, email: user.email, name: user.name, eventsCount: userEvents.length });
+  });
+
+  // --- My events route ---
+
+  app.get("/api/my/events", optionalAuth, async (req, res) => {
+    if (!req.userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    const userEvents = await storage.getEventsByUserId(req.userId);
+    // Attach photo count per event
+    const eventsWithCounts = await Promise.all(
+      userEvents.map(async (event) => {
+        const eventPhotos = await storage.getPhotos(event.id);
+        return { ...event, photoCount: eventPhotos.length };
+      })
+    );
+    res.json(eventsWithCounts);
+  });
+
   // Create event
-  app.post("/api/events", async (req, res) => {
+  app.post("/api/events", optionalAuth, async (req, res) => {
     try {
       const body = insertEventSchema.parse({
         ...req.body,
         code: generateCode(),
+        userId: req.userId || null,
       });
       const event = await storage.createEvent(body);
       res.json(event);

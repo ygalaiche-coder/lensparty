@@ -1,4 +1,5 @@
 import {
+  type User, users,
   type Event, type InsertEvent, events,
   type Photo, type InsertPhoto, photos,
   type GuestbookEntry, type InsertGuestbook, guestbookEntries,
@@ -25,6 +26,13 @@ async function initializeDatabase() {
   const client = await pool.connect();
   try {
     await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL,
+        name TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      );
       CREATE TABLE IF NOT EXISTS events (
         id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
@@ -36,6 +44,7 @@ async function initializeDatabase() {
         theme TEXT NOT NULL DEFAULT 'default',
         moderation_enabled INTEGER NOT NULL DEFAULT 0,
         guestbook_enabled INTEGER NOT NULL DEFAULT 1,
+        user_id INTEGER,
         created_at TEXT NOT NULL
       );
       CREATE TABLE IF NOT EXISTS photos (
@@ -59,6 +68,12 @@ async function initializeDatabase() {
         created_at TEXT NOT NULL
       );
     `);
+    // Add user_id column to events if it doesn't exist (migration for existing DBs)
+    try {
+      await client.query(`ALTER TABLE events ADD COLUMN user_id INTEGER;`);
+    } catch (_e) {
+      // Column already exists — ignore
+    }
     console.log("[DB] PostgreSQL tables initialized");
   } finally {
     client.release();
@@ -72,6 +87,12 @@ initializeDatabase().catch(err => {
 });
 
 export interface IStorage {
+  // Users
+  createUser(user: { email: string; passwordHash: string; name: string }): Promise<User>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  getUserById(id: number): Promise<User | undefined>;
+  getEventsByUserId(userId: number): Promise<Event[]>;
+
   // Events
   createEvent(event: InsertEvent): Promise<Event>;
   getEvent(id: number): Promise<Event | undefined>;
@@ -90,6 +111,28 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  async createUser(user: { email: string; passwordHash: string; name: string }): Promise<User> {
+    const [result] = await db.insert(users).values({
+      ...user,
+      createdAt: new Date().toISOString(),
+    }).returning();
+    return result;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [result] = await db.select().from(users).where(eq(users.email, email));
+    return result;
+  }
+
+  async getUserById(id: number): Promise<User | undefined> {
+    const [result] = await db.select().from(users).where(eq(users.id, id));
+    return result;
+  }
+
+  async getEventsByUserId(userId: number): Promise<Event[]> {
+    return db.select().from(events).where(eq(events.userId, userId)).orderBy(desc(events.createdAt));
+  }
+
   async createEvent(event: InsertEvent): Promise<Event> {
     const [result] = await db.insert(events).values({
       ...event,

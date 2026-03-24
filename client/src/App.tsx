@@ -7,6 +7,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import NotFound from "@/pages/not-found";
 import LandingPage from "@/pages/landing";
+import AuthPage from "@/pages/auth";
+import MyEventsPage from "@/pages/my-events";
 import CreateEventPage from "@/pages/create-event";
 import EventDashboard from "@/pages/event-dashboard";
 import GuestUploadPage from "@/pages/guest-upload";
@@ -16,6 +18,8 @@ function AppRouter() {
   return (
     <Switch>
       <Route path="/" component={LandingPage} />
+      <Route path="/login" component={AuthPage} />
+      <Route path="/my-events" component={MyEventsPage} />
       <Route path="/create" component={CreateEventPage} />
       <Route path="/event/:id" component={EventDashboard} />
       <Route path="/g/:code" component={GuestUploadPage} />

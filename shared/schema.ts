@@ -2,6 +2,14 @@ import { pgTable, text, integer, serial, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  name: text("name").notNull(),
+  createdAt: text("created_at").notNull(),
+});
+
 export const events = pgTable("events", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -13,6 +21,7 @@ export const events = pgTable("events", {
   theme: text("theme").notNull().default("default"),
   moderationEnabled: integer("moderation_enabled").notNull().default(0),
   guestbookEnabled: integer("guestbook_enabled").notNull().default(1),
+  userId: integer("user_id"),
   createdAt: text("created_at").notNull(),
 });
 
@@ -54,6 +63,13 @@ export const insertGuestbookSchema = createInsertSchema(guestbookEntries).omit({
   createdAt: true,
 });
 
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type User = typeof users.$inferSelect;
 export type InsertEvent = z.infer<typeof insertEventSchema>;
 export type Event = typeof events.$inferSelect;
 export type InsertPhoto = z.infer<typeof insertPhotoSchema>;
