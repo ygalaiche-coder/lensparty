@@ -148,7 +148,7 @@ export async function registerRoutes(
     const { db } = await import("./storage");
     const { photos: photosTable } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
-    const photo = db.select().from(photosTable).where(eq(photosTable.id, id)).get();
+    const [photo] = await db.select().from(photosTable).where(eq(photosTable.id, id));
     if (!photo) return res.status(404).json({ error: "Photo not found" });
 
     // If photo has a fileUrl (R2), redirect to it
@@ -198,7 +198,7 @@ export async function registerRoutes(
     const { db } = await import("./storage");
     const { photos: photosTable } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
-    const photo = db.select().from(photosTable).where(eq(photosTable.id, id)).get();
+    const [photo] = await db.select().from(photosTable).where(eq(photosTable.id, id));
 
     if (photo?.fileUrl) {
       await deleteFromR2(photo.fileUrl);

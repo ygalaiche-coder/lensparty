@@ -1,9 +1,9 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { pgTable, text, integer, serial, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const events = sqliteTable("events", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const events = pgTable("events", {
+  id: serial("id").primaryKey(),
   name: text("name").notNull(),
   eventDate: text("event_date"),
   eventType: text("event_type").notNull().default("other"),
@@ -16,21 +16,21 @@ export const events = sqliteTable("events", {
   createdAt: text("created_at").notNull(),
 });
 
-export const photos = sqliteTable("photos", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const photos = pgTable("photos", {
+  id: serial("id").primaryKey(),
   eventId: integer("event_id").notNull(),
   guestName: text("guest_name"),
   fileName: text("file_name").notNull(),
-  fileData: text("file_data"), // Legacy: base64 data (nullable for R2 migration)
-  fileUrl: text("file_url"),   // New: R2 public URL
+  fileData: text("file_data"),
+  fileUrl: text("file_url"),
   mimeType: text("mime_type").notNull(),
   caption: text("caption"),
   likes: integer("likes").notNull().default(0),
   createdAt: text("created_at").notNull(),
 });
 
-export const guestbookEntries = sqliteTable("guestbook_entries", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const guestbookEntries = pgTable("guestbook_entries", {
+  id: serial("id").primaryKey(),
   eventId: integer("event_id").notNull(),
   guestName: text("guest_name"),
   message: text("message").notNull(),
