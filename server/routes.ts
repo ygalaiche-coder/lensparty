@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertEventSchema, insertPhotoSchema, insertGuestbookSchema } from "@shared/schema";
 import QRCode from "qrcode";
+import { isCloudStorageEnabled, uploadToR2, deleteFromR2 } from "./r2";
 
 function generateCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -20,7 +21,11 @@ export async function registerRoutes(
 
   // Health check for Railway
   app.get("/api/health", (_req, res) => {
-    res.json({ status: "ok", timestamp: new Date().toISOString() });
+    res.json({
+      status: "ok",
+      timestamp: new Date().toISOString(),
+      cloudStorage: isCloudStorageEnabled(),
+    });
   });
 
   // Create event
@@ -79,7 +84,7 @@ export async function registerRoutes(
     res.json({ qrCode: qrDataUri, guestUrl });
   });
 
-  // Upload photos
+  // Upload photos — supports both R2 cloud storage and legacy base64
   app.post("/api/events/:id/photos", async (req, res) => {
     try {
       const eventId = parseInt(req.params.id);
@@ -92,13 +97,28 @@ export async function registerRoutes(
         return res.status(400).json({ error: "No photos provided" });
       }
 
+      const useCloud = isCloudStorageEnabled();
       const saved = [];
+
       for (const p of photoList) {
+        let fileUrl: string | null = null;
+        let fileData: string | null = null;
+
+        if (useCloud) {
+          // Convert base64 to buffer and upload to R2
+          const buffer = Buffer.from(p.fileData, "base64");
+          fileUrl = await uploadToR2(buffer, p.mimeType, eventId, p.fileName);
+        } else {
+          // Legacy: store base64 in database
+          fileData = p.fileData;
+        }
+
         const photo = await storage.addPhoto({
           eventId,
           guestName: p.guestName || null,
           fileName: p.fileName,
-          fileData: p.fileData,
+          fileData,
+          fileUrl,
           mimeType: p.mimeType,
           caption: p.caption || null,
         });
@@ -106,31 +126,37 @@ export async function registerRoutes(
       }
       res.json(saved);
     } catch (e: any) {
+      console.error("Photo upload error:", e);
       res.status(400).json({ error: e.message });
     }
   });
 
-  // Get photos for event
+  // Get photos for event (lightweight listing — no base64 data)
   app.get("/api/events/:id/photos", async (req, res) => {
     const eventId = parseInt(req.params.id);
     if (isNaN(eventId)) return res.status(400).json({ error: "Invalid ID" });
     const eventPhotos = await storage.getPhotos(eventId);
-    // Return photos without fileData for listing (save bandwidth)
+    // Return photos without fileData (save bandwidth), but include fileUrl
     const lite = eventPhotos.map(({ fileData, ...rest }) => rest);
     res.json(lite);
   });
 
-  // Get single photo data
+  // Get single photo data (legacy base64 fallback)
   app.get("/api/photos/:id/data", async (req, res) => {
     const id = parseInt(req.params.id);
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
-    const allPhotos = await storage.getPhotos(0); // need a direct query
-    // Actually, let's just get it from db
     const { db } = await import("./storage");
     const { photos: photosTable } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     const photo = db.select().from(photosTable).where(eq(photosTable.id, id)).get();
     if (!photo) return res.status(404).json({ error: "Photo not found" });
+
+    // If photo has a fileUrl (R2), redirect to it
+    if (photo.fileUrl) {
+      return res.redirect(photo.fileUrl);
+    }
+
+    // Legacy: return base64 data
     res.json({ fileData: photo.fileData, mimeType: photo.mimeType });
   });
 
@@ -143,10 +169,21 @@ export async function registerRoutes(
     res.json(photo);
   });
 
-  // Delete photo
+  // Delete photo (also removes from R2 if applicable)
   app.delete("/api/photos/:id", async (req, res) => {
     const id = parseInt(req.params.id);
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+
+    // Get photo first to check for R2 URL
+    const { db } = await import("./storage");
+    const { photos: photosTable } = await import("@shared/schema");
+    const { eq } = await import("drizzle-orm");
+    const photo = db.select().from(photosTable).where(eq(photosTable.id, id)).get();
+
+    if (photo?.fileUrl) {
+      await deleteFromR2(photo.fileUrl);
+    }
+
     await storage.deletePhoto(id);
     res.json({ success: true });
   });

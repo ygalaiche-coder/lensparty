@@ -21,7 +21,8 @@ export const photos = sqliteTable("photos", {
   eventId: integer("event_id").notNull(),
   guestName: text("guest_name"),
   fileName: text("file_name").notNull(),
-  fileData: text("file_data").notNull(),
+  fileData: text("file_data"), // Legacy: base64 data (nullable for R2 migration)
+  fileUrl: text("file_url"),   // New: R2 public URL
   mimeType: text("mime_type").notNull(),
   caption: text("caption"),
   likes: integer("likes").notNull().default(0),

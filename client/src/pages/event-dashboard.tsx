@@ -371,10 +371,13 @@ function PhotoCard({
   onDelete: () => void;
   deleting: boolean;
 }) {
-  const [imgSrc, setImgSrc] = useState<string | null>(null);
+  const [imgSrc, setImgSrc] = useState<string | null>(
+    // If we have a cloud URL, use it directly — no need to fetch base64
+    (photo as any).fileUrl || null
+  );
   const [loaded, setLoaded] = useState(false);
 
-  // Lazy load the actual image data
+  // Only fetch base64 data if no fileUrl is available (legacy photos)
   const { isLoading } = useQuery({
     queryKey: ["/api/photos", photo.id, "data"],
     queryFn: async () => {
@@ -385,6 +388,7 @@ function PhotoCard({
       return src;
     },
     staleTime: Infinity,
+    enabled: !(photo as any).fileUrl, // Skip if we already have a cloud URL
   });
 
   return (

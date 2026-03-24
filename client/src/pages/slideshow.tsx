@@ -42,14 +42,23 @@ export default function SlideshowPage() {
     enabled: !!eventId,
   });
 
-  // Load image data for a photo
-  const loadPhotoData = async (photoId: number) => {
-    if (loadedSrcs.has(photoId)) return loadedSrcs.get(photoId)!;
+  // Load image data for a photo — uses fileUrl (R2) when available
+  const loadPhotoData = async (photo: PhotoWithoutData) => {
+    if (loadedSrcs.has(photo.id)) return loadedSrcs.get(photo.id)!;
+
+    // If photo has a cloud URL, use it directly
+    const fileUrl = (photo as any).fileUrl;
+    if (fileUrl) {
+      setLoadedSrcs(prev => new Map(prev).set(photo.id, fileUrl));
+      return fileUrl;
+    }
+
+    // Legacy: fetch base64 data
     try {
-      const res = await apiRequest("GET", `/api/photos/${photoId}/data`);
+      const res = await apiRequest("GET", `/api/photos/${photo.id}/data`);
       const data = await res.json();
       const src = `data:${data.mimeType};base64,${data.fileData}`;
-      setLoadedSrcs(prev => new Map(prev).set(photoId, src));
+      setLoadedSrcs(prev => new Map(prev).set(photo.id, src));
       return src;
     } catch {
       return null;
@@ -66,7 +75,7 @@ export default function SlideshowPage() {
       return updated;
     });
     // Prefetch first few
-    rawPhotos.slice(0, 3).forEach(p => loadPhotoData(p.id));
+    rawPhotos.slice(0, 3).forEach(p => loadPhotoData(p));
   }, [rawPhotos]);
 
   // Auto-advance slideshow
@@ -94,8 +103,8 @@ export default function SlideshowPage() {
     if (photos.length === 0) return;
     const curr = photos[currentIndex];
     const next = photos[(currentIndex + 1) % photos.length];
-    if (curr) loadPhotoData(curr.id);
-    if (next) loadPhotoData(next.id);
+    if (curr) loadPhotoData(curr);
+    if (next) loadPhotoData(next);
   }, [currentIndex, photos]);
 
   // ESC to exit

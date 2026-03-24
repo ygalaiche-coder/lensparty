@@ -403,7 +403,9 @@ function GuestPhotoCard({
   liked: boolean;
   onLike: () => void;
 }) {
-  const [imgSrc, setImgSrc] = useState<string | null>(null);
+  const [imgSrc, setImgSrc] = useState<string | null>(
+    (photo as any).fileUrl || null
+  );
 
   useQuery({
     queryKey: ["/api/photos", photo.id, "data"],
@@ -414,6 +416,7 @@ function GuestPhotoCard({
       return data;
     },
     staleTime: Infinity,
+    enabled: !(photo as any).fileUrl,
   });
 
   return (
