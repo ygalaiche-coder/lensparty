@@ -573,8 +573,36 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-3 gap-10">
             <StepCard number="1" icon={Calendar} title="Create Your Event" desc="Name your event, pick a date, customize your gallery theme. Takes 30 seconds." delay={100} />
             <StepCard number="2" icon={QrCode} title="Share QR Code" desc="Print it, display it, text it. Guests scan with any phone camera — no app download needed." delay={200} />
-            <StepCard number="3" icon={Images} title="Collect Memories" desc="Photos pour in from every angle. Browse, like, and download your complete album." delay={300} />
+            <StepCard number="3" icon={Images} title="Collect Memories" desc="Photos and videos pour in from every angle. Browse, like, and download your complete album." delay={300} />
           </div>
+
+          {/* Zero Friction Banner */}
+          <AnimatedSection delay={400} className="mt-16">
+            <div className="relative rounded-2xl bg-gradient-to-r from-primary/10 via-accent/5 to-primary/10 dark:from-primary/20 dark:via-accent/10 dark:to-primary/20 border border-primary/15 p-8 md:p-10">
+              <div className="text-center mb-8">
+                <h3 className="font-display font-bold text-2xl md:text-3xl text-foreground mb-2">Zero Friction for Your Guests</h3>
+                <p className="text-muted-foreground text-base">Your guests just scan and upload. That's it. Nothing else.</p>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                {[
+                  { emoji: "📱", title: "No App to Download", desc: "Works instantly in any browser. iPhone, Android, anything." },
+                  { emoji: "🔓", title: "No Login Required", desc: "Guests never create an account. Zero sign-up friction." },
+                  { emoji: "💰", title: "No Cost for Guests", desc: "Completely free for every guest. No hidden fees, ever." },
+                  { emoji: "🧠", title: "No Tech Skills Needed", desc: "If they can take a selfie, they can use LensParty." },
+                ].map((item, i) => (
+                  <div key={i} className="text-center flex flex-col items-center gap-2">
+                    <div className="text-3xl md:text-4xl">{item.emoji}</div>
+                    <div className="font-display font-bold text-sm md:text-base text-foreground">{item.title}</div>
+                    <p className="text-muted-foreground text-xs md:text-sm leading-relaxed">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-8 text-center">
+                <p className="font-serif italic text-primary/70 text-base">"My 80-year-old grandmother figured it out in 10 seconds."</p>
+                <p className="text-muted-foreground text-xs mt-1">— Maria K., Birthday Party Host</p>
+              </div>
+            </div>
+          </AnimatedSection>
         </div>
       </section>
 
