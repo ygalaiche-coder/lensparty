@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -8,6 +8,10 @@ type PhotoWithoutData = Omit<Photo, "fileData">;
 
 interface PhotoWithSrc extends PhotoWithoutData {
   src?: string;
+}
+
+function isVideoMime(mimeType?: string | null): boolean {
+  return !!mimeType?.startsWith("video/");
 }
 
 export default function SlideshowPage() {
@@ -78,19 +82,27 @@ export default function SlideshowPage() {
     rawPhotos.slice(0, 3).forEach(p => loadPhotoData(p));
   }, [rawPhotos]);
 
-  // Auto-advance slideshow
+  const advanceSlide = useCallback(() => {
+    setFading(true);
+    setTimeout(() => {
+      setCurrentIndex(i => (i + 1) % photos.length);
+      setFading(false);
+    }, 600);
+  }, [photos.length]);
+
+  // Auto-advance slideshow — skip timer for videos (they advance on end)
   useEffect(() => {
     if (photos.length === 0) return;
+    const curr = photos[currentIndex];
+    if (isVideoMime(curr?.mimeType)) {
+      // Video: don't auto-advance, wait for onEnded
+      if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+      return;
+    }
     if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      setFading(true);
-      setTimeout(() => {
-        setCurrentIndex(i => (i + 1) % photos.length);
-        setFading(false);
-      }, 600);
-    }, 5000);
+    timerRef.current = setInterval(advanceSlide, 5000);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [photos.length]);
+  }, [photos.length, currentIndex, advanceSlide]);
 
   // Poll for new photos every 10 seconds
   useEffect(() => {
@@ -152,18 +164,32 @@ export default function SlideshowPage() {
         }
       `}</style>
 
-      {/* Main photo */}
+      {/* Main photo/video */}
       <div
         className="absolute inset-0 transition-opacity duration-700"
         style={{ opacity: fading ? 0 : 1 }}
       >
         {currentSrc ? (
-          <img
-            src={currentSrc}
-            alt={currentPhoto?.caption || "Event photo"}
-            className="w-full h-full object-contain"
-            data-testid="img-slideshow-current"
-          />
+          isVideoMime(currentPhoto?.mimeType) ? (
+            <video
+              key={currentPhoto?.id}
+              src={currentSrc}
+              autoPlay
+              muted
+              playsInline
+              controls
+              onEnded={advanceSlide}
+              className="w-full h-full object-contain"
+              data-testid="video-slideshow-current"
+            />
+          ) : (
+            <img
+              src={currentSrc}
+              alt={currentPhoto?.caption || "Event photo"}
+              className="w-full h-full object-contain"
+              data-testid="img-slideshow-current"
+            />
+          )
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <div className="w-12 h-12 border-4 border-white/20 border-t-white/80 rounded-full animate-spin" />

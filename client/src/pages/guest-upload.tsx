@@ -16,6 +16,7 @@ import {
   Send,
   X,
   CheckCircle2,
+  Play,
 } from "lucide-react";
 import type { Event, Photo, GuestbookEntry } from "@shared/schema";
 
@@ -278,7 +279,17 @@ export default function GuestUploadPage() {
             <div className="grid grid-cols-3 gap-2">
               {files.map((fp, idx) => (
                 <div key={idx} className="relative aspect-square rounded-xl overflow-hidden bg-muted" data-testid={`preview-file-${idx}`}>
-                  <img src={fp.preview} alt={fp.name} className="w-full h-full object-cover" />
+                  {fp.file.type.startsWith("video/") ? (
+                    <>
+                      <video src={fp.preview} muted playsInline preload="metadata" className="w-full h-full object-cover" />
+                      <div className="absolute bottom-1 left-1 flex items-center gap-0.5 bg-black/60 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-md pointer-events-none">
+                        <Play className="w-2.5 h-2.5 fill-current" />
+                        Video
+                      </div>
+                    </>
+                  ) : (
+                    <img src={fp.preview} alt={fp.name} className="w-full h-full object-cover" />
+                  )}
                   <button
                     onClick={(e) => { e.stopPropagation(); removeFile(idx); }}
                     className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center"
@@ -403,16 +414,17 @@ function GuestPhotoCard({
   liked: boolean;
   onLike: () => void;
 }) {
-  const [imgSrc, setImgSrc] = useState<string | null>(
+  const [mediaSrc, setMediaSrc] = useState<string | null>(
     (photo as any).fileUrl || null
   );
+  const isVideo = photo.mimeType?.startsWith("video/");
 
   useQuery({
     queryKey: ["/api/photos", photo.id, "data"],
     queryFn: async () => {
       const res = await apiRequest("GET", `/api/photos/${photo.id}/data`);
       const data = await res.json();
-      setImgSrc(`data:${data.mimeType};base64,${data.fileData}`);
+      setMediaSrc(`data:${data.mimeType};base64,${data.fileData}`);
       return data;
     },
     staleTime: Infinity,
@@ -422,8 +434,26 @@ function GuestPhotoCard({
   return (
     <div className="rounded-xl overflow-hidden bg-card border border-border" data-testid={`card-photo-${photo.id}`}>
       <div className="relative aspect-[4/3] bg-muted">
-        {!imgSrc && <Skeleton className="w-full h-full" />}
-        {imgSrc && <img src={imgSrc} alt={photo.caption || ""} className="w-full h-full object-cover" />}
+        {!mediaSrc && <Skeleton className="w-full h-full" />}
+        {mediaSrc && isVideo ? (
+          <video
+            src={mediaSrc}
+            controls
+            playsInline
+            muted
+            preload="metadata"
+            className="w-full h-full object-cover"
+            data-testid={`video-player-${photo.id}`}
+          />
+        ) : mediaSrc ? (
+          <img src={mediaSrc} alt={photo.caption || ""} className="w-full h-full object-cover" />
+        ) : null}
+        {isVideo && mediaSrc && (
+          <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-md pointer-events-none">
+            <Play className="w-2.5 h-2.5 fill-current" />
+            Video
+          </div>
+        )}
       </div>
       <div className="px-2.5 py-2 flex items-center justify-between gap-1">
         <div className="min-w-0">

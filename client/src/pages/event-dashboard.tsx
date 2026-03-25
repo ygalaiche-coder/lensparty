@@ -24,6 +24,7 @@ import {
   Calendar,
   Sparkles,
   Printer,
+  Play,
 } from "lucide-react";
 import type { Event, Photo, GuestbookEntry } from "@shared/schema";
 
@@ -403,42 +404,59 @@ function PhotoCard({
   onDelete: () => void;
   deleting: boolean;
 }) {
-  const [imgSrc, setImgSrc] = useState<string | null>(
-    // If we have a cloud URL, use it directly — no need to fetch base64
+  const [mediaSrc, setMediaSrc] = useState<string | null>(
     (photo as any).fileUrl || null
   );
   const [loaded, setLoaded] = useState(false);
+  const isVideo = photo.mimeType?.startsWith("video/");
 
-  // Only fetch base64 data if no fileUrl is available (legacy photos)
   const { isLoading } = useQuery({
     queryKey: ["/api/photos", photo.id, "data"],
     queryFn: async () => {
       const res = await apiRequest("GET", `/api/photos/${photo.id}/data`);
       const data = await res.json();
       const src = `data:${data.mimeType};base64,${data.fileData}`;
-      setImgSrc(src);
+      setMediaSrc(src);
       return src;
     },
     staleTime: Infinity,
-    enabled: !(photo as any).fileUrl, // Skip if we already have a cloud URL
+    enabled: !(photo as any).fileUrl,
   });
 
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden group relative" data-testid={`card-photo-${photo.id}`}>
-      {/* Image */}
+      {/* Media */}
       <div className="relative aspect-[4/3] bg-muted overflow-hidden">
         {isLoading && <Skeleton className="w-full h-full" />}
-        {imgSrc && (
+        {mediaSrc && isVideo ? (
+          <video
+            src={mediaSrc}
+            controls
+            playsInline
+            muted
+            preload="metadata"
+            className={`w-full h-full object-cover ${loaded ? "opacity-100" : "opacity-0"}`}
+            onLoadedData={() => setLoaded(true)}
+            data-testid={`video-player-${photo.id}`}
+          />
+        ) : mediaSrc ? (
           <img
-            src={imgSrc}
+            src={mediaSrc}
             alt={photo.caption || "Photo"}
             className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 ${loaded ? "opacity-100" : "opacity-0"}`}
             onLoad={() => setLoaded(true)}
           />
+        ) : null}
+        {/* Video badge */}
+        {isVideo && mediaSrc && (
+          <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-md pointer-events-none">
+            <Play className="w-2.5 h-2.5 fill-current" />
+            Video
+          </div>
         )}
       </div>
 
-      {/* Overlay */}
+      {/* Delete overlay */}
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <button
           onClick={onDelete}
