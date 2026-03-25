@@ -82,6 +82,7 @@ async function initializeDatabase() {
       await client.query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS plan TEXT NOT NULL DEFAULT 'free';`);
       await client.query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS stripe_payment_id TEXT;`);
       await client.query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS paid_at TEXT;`);
+      await client.query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS is_demo INTEGER NOT NULL DEFAULT 0;`);
     } catch (_e) {
       // Columns may already exist — ignore
     }

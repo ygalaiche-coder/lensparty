@@ -25,6 +25,7 @@ export const events = pgTable("events", {
   plan: text("plan").notNull().default("free"),
   stripePaymentId: text("stripe_payment_id"),
   paidAt: text("paid_at"),
+  isDemo: integer("is_demo").notNull().default(0),
   createdAt: text("created_at").notNull(),
 });
 

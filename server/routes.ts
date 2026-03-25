@@ -356,6 +356,26 @@ export async function registerRoutes(
     res.json(entries);
   });
 
+  // --- Demo route ---
+
+  app.post("/api/demo/create", async (_req, res) => {
+    try {
+      const code = generateCode();
+      const event = await storage.createEvent({
+        name: "Demo Event ✨",
+        eventType: "other",
+        description: "Try LensParty — upload photos and see the magic!",
+        hostName: "Demo Host",
+        code,
+        isDemo: 1,
+        userId: null,
+      });
+      res.json(event);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   // --- Payment routes ---
 
   app.get("/api/plans", (_req, res) => {

@@ -17,6 +17,7 @@ import {
   Check,
   X,
   ChevronDown,
+  AlertTriangle,
   Sun,
   Moon,
   Camera,
@@ -418,6 +419,9 @@ export default function LandingPage() {
           <button onClick={() => scrollTo("features")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.features")}</button>
           <button onClick={() => scrollTo("pricing")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.pricing")}</button>
           <button onClick={() => scrollTo("how-it-works")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.howItWorks")}</button>
+          <Link href="/demo">
+            <span className="text-sm text-primary font-semibold hover:text-primary/80 transition-colors cursor-pointer" data-testid="link-nav-demo">Live Demo</span>
+          </Link>
           {user && (
             <Link href="/my-events">
               <span className="text-sm text-primary font-semibold hover:text-primary/80 transition-colors cursor-pointer" data-testid="link-my-events">{t("nav.myEvents")}</span>
@@ -495,6 +499,11 @@ export default function LandingPage() {
                 {t("hero.howItWorks")}
               </Button>
             </div>
+            <Link href="/demo">
+              <span className="text-sm text-primary font-semibold hover:text-primary/80 transition-colors cursor-pointer" data-testid="link-hero-demo">
+                Try Live Demo →
+              </span>
+            </Link>
             <div className="flex items-center gap-4 text-xs text-muted-foreground pt-2">
               <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-green-500" />{t("hero.noCreditCard")}</div>
               <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-green-500" />{t("hero.freePlan")}</div>
@@ -691,6 +700,72 @@ export default function LandingPage() {
           <AnimatedSection delay={200} className="text-center">
             <div className="w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent mb-6" />
             <p className="font-display font-semibold text-lg text-foreground">{t("painPoints.solution")}</p>
+          </AnimatedSection>
+        </div>
+      </section>
+
+      {/* Why Traditional Methods Fail — Comparison Table */}
+      <section className="py-20 px-6 lg:px-12 bg-muted/30">
+        <div className="max-w-5xl mx-auto">
+          <AnimatedSection className="text-center mb-14">
+            <div className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 font-display">THE REALITY CHECK</div>
+            <h2 className="font-display font-bold text-4xl text-foreground mb-4">Why Traditional Methods Fail</h2>
+            <p className="text-muted-foreground text-base max-w-xl mx-auto">Don't risk your memories getting lost in group chats, forgotten passwords, or on disposable cameras.</p>
+          </AnimatedSection>
+          <AnimatedSection delay={100}>
+            <div className="overflow-x-auto -mx-6 px-6">
+              <div className="min-w-[700px]">
+                <div className="rounded-xl border border-border overflow-hidden">
+                  <table className="w-full text-sm" data-testid="comparison-traditional-table">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/50">
+                        <th className="text-left py-4 px-4 font-display font-semibold text-foreground w-36">Feature</th>
+                        <th className="py-4 px-3 text-center">
+                          <div className="inline-flex flex-col items-center gap-1">
+                            <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Winner</span>
+                            <span className="font-display font-bold text-primary">LensParty</span>
+                          </div>
+                        </th>
+                        <th className="py-4 px-3 font-display font-semibold text-muted-foreground text-center">Disposable Cameras</th>
+                        <th className="py-4 px-3 font-display font-semibold text-muted-foreground text-center">Group Text</th>
+                        <th className="py-4 px-3 font-display font-semibold text-muted-foreground text-center">Shared Album</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        { feature: "Setup Work", lp: { s: "good", main: "Ready-to-Use", sub: "Place QR code" }, dc: { s: "bad", main: "Buy & Place", sub: "50+ cameras" }, gt: { s: "bad", main: "Manual Add", sub: "Every number" }, sa: { s: "bad", main: "Invite All", sub: "Select 100+" } },
+                        { feature: "Guest Experience", lp: { s: "good", main: "Just Scan QR", sub: "No numbers" }, dc: { s: "warn", main: "Find Camera", sub: "Limited shots" }, gt: { s: "bad", main: "Need Info", sub: "Ask everyone" }, sa: { s: "bad", main: "Need Apple ID", sub: "Must login" } },
+                        { feature: "Android Guests", lp: { s: "good", main: "Works 100%", sub: "" }, dc: { s: "good", main: "Anyone", sub: "Physical" }, gt: { s: "bad", main: "Breaks Chat", sub: "Green bubble" }, sa: { s: "bad", main: "Excluded", sub: "Or web only" } },
+                        { feature: "Video Quality", lp: { s: "good", main: "Full HD", sub: "" }, dc: { s: "bad", main: "No Video", sub: "Photos only" }, gt: { s: "bad", main: "Pixelated", sub: "MMS limit" }, sa: { s: "warn", main: "Compressed", sub: "Save space" } },
+                        { feature: "Photo Quality", lp: { s: "good", main: "Original Resolution", sub: "" }, dc: { s: "warn", main: "Varies", sub: "Film quality" }, gt: { s: "bad", main: "Compressed", sub: "Auto-shrink" }, sa: { s: "good", main: "Original", sub: "If uploaded" } },
+                        { feature: "Photo Collection", lp: { s: "good", main: "Automatic", sub: "Real-time" }, dc: { s: "bad", main: "Manual", sub: "Develop film" }, gt: { s: "bad", main: "Scattered", sub: "Multiple chats" }, sa: { s: "warn", main: "Manual Upload", sub: "" } },
+                        { feature: "Cost", lp: { s: "good", main: "Free", sub: "Or from $19.99" }, dc: { s: "bad", main: "$200+", sub: "50 cameras + develop" }, gt: { s: "good", main: "Free", sub: "But painful" }, sa: { s: "good", main: "Free", sub: "Apple only" } },
+                        { feature: "Privacy", lp: { s: "good", main: "Private & Encrypted", sub: "" }, dc: { s: "good", main: "Physical", sub: "No cloud" }, gt: { s: "bad", main: "Shared Everywhere", sub: "" }, sa: { s: "warn", main: "Apple's Terms", sub: "" } },
+                      ].map((row, i) => (
+                        <tr key={i} className={`border-b border-border last:border-0 ${i % 2 === 0 ? "bg-background" : "bg-muted/20"}`}>
+                          <td className="py-3 px-4 font-display font-semibold text-foreground text-sm">{row.feature}</td>
+                          {[row.lp, row.dc, row.gt, row.sa].map((cell, ci) => (
+                            <td key={ci} className={`py-3 px-3 text-center ${ci === 0 ? "bg-primary/5" : ""}`}>
+                              <div className="flex flex-col items-center gap-0.5">
+                                <div className="flex items-center gap-1">
+                                  {cell.s === "good" && <Check className="w-3.5 h-3.5 text-green-500" />}
+                                  {cell.s === "warn" && <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />}
+                                  {cell.s === "bad" && <X className="w-3.5 h-3.5 text-red-400" />}
+                                  <span className={`font-semibold text-xs ${cell.s === "good" ? "text-green-600 dark:text-green-400" : cell.s === "warn" ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"}`}>
+                                    {cell.main}
+                                  </span>
+                                </div>
+                                {cell.sub && <span className="text-[10px] text-muted-foreground">{cell.sub}</span>}
+                              </div>
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </AnimatedSection>
         </div>
       </section>
