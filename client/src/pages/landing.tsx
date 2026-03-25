@@ -71,83 +71,33 @@ function LensLogo({ size = 28 }: { size?: number }) {
   );
 }
 
-// Phone mockup illustration
-function HeroMockup() {
+// Hero photo collage
+const heroPhotos = [
+  { src: "https://images.unsplash.com/photo-1519741497674-611481863552?w=400&h=300&fit=crop", alt: "Wedding celebration", rotate: "-3deg", col: "col-span-1", h: "h-40" },
+  { src: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400&h=300&fit=crop", alt: "Birthday party", rotate: "2deg", col: "col-span-1", h: "h-52" },
+  { src: "https://images.unsplash.com/photo-1529543544282-ea99407407c1?w=400&h=300&fit=crop", alt: "Group selfie", rotate: "-1deg", col: "col-span-1", h: "h-44" },
+  { src: "https://images.unsplash.com/photo-1496843916299-590492c751f4?w=400&h=300&fit=crop", alt: "Party celebration", rotate: "3deg", col: "col-span-1", h: "h-48" },
+  { src: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=400&h=300&fit=crop", alt: "Couple dancing", rotate: "-2deg", col: "col-span-1", h: "h-36" },
+  { src: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop", alt: "Corporate event", rotate: "1deg", col: "col-span-1", h: "h-52" },
+];
+
+function HeroCollage() {
   return (
-    <div className="relative flex items-center justify-center h-[420px] w-full max-w-lg mx-auto">
-      {/* Floating photo cards */}
-      <div className="absolute top-4 left-0 w-28 h-20 rounded-xl overflow-hidden shadow-xl border-2 border-white/80 dark:border-white/20 rotate-[-8deg] z-10 bg-gradient-to-br from-purple-400 to-pink-400">
-        <div className="w-full h-full flex items-center justify-center">
-          <Camera className="w-8 h-8 text-white/80" />
-        </div>
-      </div>
-      <div className="absolute top-8 right-0 w-24 h-32 rounded-xl overflow-hidden shadow-xl border-2 border-white/80 dark:border-white/20 rotate-[6deg] z-10 bg-gradient-to-br from-pink-400 to-orange-400">
-        <div className="w-full h-full flex items-center justify-center">
-          <Images className="w-8 h-8 text-white/80" />
-        </div>
-      </div>
-      <div className="absolute bottom-8 left-4 w-20 h-24 rounded-xl overflow-hidden shadow-xl border-2 border-white/80 dark:border-white/20 rotate-[4deg] z-10 bg-gradient-to-br from-blue-400 to-purple-400">
-        <div className="w-full h-full flex items-center justify-center">
-          <Star className="w-8 h-8 text-white/80" />
-        </div>
-      </div>
-      <div className="absolute bottom-4 right-6 w-28 h-20 rounded-xl overflow-hidden shadow-xl border-2 border-white/80 dark:border-white/20 rotate-[-5deg] z-10 bg-gradient-to-br from-green-400 to-teal-400">
-        <div className="w-full h-full flex items-center justify-center">
-          <Zap className="w-8 h-8 text-white/80" />
-        </div>
-      </div>
-
-      {/* Phone frame */}
-      <div className="relative z-20 w-48 h-80 bg-gray-900 dark:bg-gray-800 rounded-[2.5rem] shadow-2xl border-4 border-gray-700 flex flex-col overflow-hidden">
-        {/* Status bar */}
-        <div className="h-8 bg-gray-900 dark:bg-gray-800 flex items-center justify-center">
-          <div className="w-20 h-4 bg-gray-800 dark:bg-gray-700 rounded-full" />
-        </div>
-        {/* Screen content */}
-        <div className="flex-1 bg-white dark:bg-gray-900 flex flex-col items-center justify-center p-4 gap-3">
-          <div className="text-[10px] font-display font-bold text-primary text-center">LensParty</div>
-          {/* QR code grid */}
-          <div className="w-20 h-20 bg-gray-900 rounded-lg p-2">
-            <div className="w-full h-full grid grid-cols-5 gap-0.5">
-              {Array.from({ length: 25 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="rounded-[1px]"
-                  style={{
-                    backgroundColor: [0,1,2,5,6,7,10,12,17,18,19,20,21,22,23,24].includes(i)
-                      ? "#1a1a2e" : "transparent",
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-          <div className="text-[8px] text-gray-500 text-center">Scan to upload photos</div>
-          <div className="w-full h-px bg-gray-100 dark:bg-gray-700" />
-          {/* Mini gallery */}
-          <div className="grid grid-cols-2 gap-1 w-full">
-            {["from-purple-400 to-pink-400","from-pink-400 to-red-400","from-blue-400 to-purple-400","from-green-400 to-teal-400"].map((grad, i) => (
-              <div key={i} className={`h-10 rounded bg-gradient-to-br ${grad} flex items-center justify-center`}>
-                <Camera className="w-3 h-3 text-white/80" />
-              </div>
-            ))}
-          </div>
-        </div>
-        {/* Home indicator */}
-        <div className="h-8 bg-gray-900 dark:bg-gray-800 flex items-end justify-center pb-2">
-          <div className="w-12 h-1 bg-gray-600 rounded-full" />
-        </div>
-      </div>
-
-      {/* Upload arrow animations */}
-      <div className="absolute left-[55%] top-1/3 flex flex-col gap-1 z-30">
-        {[0, 1, 2].map(i => (
-          <div
-            key={i}
-            className="w-1 h-4 rounded-full bg-primary/40"
-            style={{ animationDelay: `${i * 0.2}s`, animation: "bounce 1.5s infinite" }}
+    <div className="grid grid-cols-3 gap-3 max-w-lg mx-auto">
+      {heroPhotos.map((photo, i) => (
+        <div
+          key={i}
+          className={`${photo.col} ${photo.h} rounded-2xl overflow-hidden shadow-xl border-2 border-white/60 dark:border-white/10 hover:scale-105 transition-transform duration-300`}
+          style={{ transform: `rotate(${photo.rotate})` }}
+        >
+          <img
+            src={photo.src}
+            alt={photo.alt}
+            className="w-full h-full object-cover"
+            loading="lazy"
           />
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -179,6 +129,32 @@ function FeatureCard({ icon: Icon, title, desc, delay }: { icon: any; title: str
           <Icon className="w-5 h-5 text-primary" />
         </div>
         <h3 className="font-display font-semibold text-base text-foreground mb-2">{title}</h3>
+        <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
+      </div>
+    </AnimatedSection>
+  );
+}
+
+// Use case card
+function UseCaseCard({ emoji, title, desc, bg, delay }: { emoji: string; title: string; desc: string; bg: string; delay: number }) {
+  return (
+    <AnimatedSection delay={delay}>
+      <div className={`${bg} rounded-2xl p-6 text-center hover:-translate-y-1 transition-transform duration-200 h-full`}>
+        <div className="text-4xl mb-3">{emoji}</div>
+        <h3 className="font-display font-bold text-base text-foreground mb-1">{title}</h3>
+        <p className="text-muted-foreground text-xs leading-relaxed">{desc}</p>
+      </div>
+    </AnimatedSection>
+  );
+}
+
+// Pain point card
+function PainPointCard({ emoji, title, desc, delay }: { emoji: string; title: string; desc: string; delay: number }) {
+  return (
+    <AnimatedSection delay={delay}>
+      <div className="bg-card border border-border rounded-xl p-6 h-full">
+        <div className="text-3xl mb-3">{emoji}</div>
+        <h3 className="font-display font-bold text-base text-foreground mb-2">{title}</h3>
         <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
       </div>
     </AnimatedSection>
@@ -287,21 +263,88 @@ function ComparisonTable() {
   );
 }
 
-// Testimonial card
-function TestimonialCard({ quote, name, event, delay }: { quote: string; name: string; event: string; delay: number }) {
+// Testimonial card — upgraded with avatar, variable stars, optional photo
+const testimonials = [
+  {
+    quote: "347 photos from our wedding that we never would have seen. My aunt figured it out in seconds — no app needed.",
+    name: "Sarah M.",
+    event: "Wedding, June 2025",
+    stars: 5,
+    initials: "SM",
+    color: "bg-purple-500",
+    photo: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=300&h=200&fit=crop",
+  },
+  {
+    quote: "Set up in 2 minutes. The live slideshow at the reception had everyone cheering when new photos appeared.",
+    name: "Maria K.",
+    event: "Birthday Party",
+    stars: 5,
+    initials: "MK",
+    color: "bg-pink-500",
+    photo: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=300&h=200&fit=crop",
+  },
+  {
+    quote: "Great concept and mostly works perfectly. Wish there were more gallery themes, but for the price you can't beat it.",
+    name: "David C.",
+    event: "Corporate Event",
+    stars: 4,
+    initials: "DC",
+    color: "bg-blue-500",
+    photo: null,
+  },
+  {
+    quote: "Lo usamos para el baby shower de mi hermana. 200+ fotos en una hora. Increíble.",
+    name: "Ana R.",
+    event: "Baby Shower",
+    stars: 5,
+    initials: "AR",
+    color: "bg-rose-500",
+    photo: null,
+  },
+  {
+    quote: "We use LensParty for all our corporate offsites. The free tier alone replaces what we were paying $50/event for.",
+    name: "James T.",
+    event: "Event Planner",
+    stars: 5,
+    initials: "JT",
+    color: "bg-emerald-500",
+    photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop",
+  },
+  {
+    quote: "The AI face search found every single photo of my parents at the anniversary party. In seconds.",
+    name: "Priya M.",
+    event: "Anniversary Party",
+    stars: 5,
+    initials: "PM",
+    color: "bg-amber-500",
+    photo: null,
+  },
+];
+
+function TestimonialCard({ t, delay }: { t: typeof testimonials[number]; delay: number }) {
   return (
     <AnimatedSection delay={delay}>
       <div className="p-6 rounded-xl border border-border bg-card flex flex-col gap-4 h-full">
-        <div className="flex gap-1">
-          {[1,2,3,4,5].map(i => (
-            <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+        <div className="flex items-center gap-3">
+          <div className={`w-9 h-9 rounded-full ${t.color} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
+            {t.initials}
+          </div>
+          <div className="min-w-0">
+            <div className="font-display font-semibold text-sm text-foreground truncate">{t.name}</div>
+            <div className="text-xs text-muted-foreground truncate">{t.event}</div>
+          </div>
+        </div>
+        <div className="flex gap-0.5">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Star key={i} className={`w-3.5 h-3.5 ${i < t.stars ? "fill-yellow-400 text-yellow-400" : "fill-muted text-muted"}`} />
           ))}
         </div>
-        <p className="text-foreground text-sm leading-relaxed flex-1">"{quote}"</p>
-        <div>
-          <div className="font-display font-semibold text-sm text-foreground">{name}</div>
-          <div className="text-xs text-muted-foreground">{event}</div>
-        </div>
+        <p className="text-foreground text-sm leading-relaxed flex-1">"{t.quote}"</p>
+        {t.photo && (
+          <div className="rounded-lg overflow-hidden border border-border">
+            <img src={t.photo} alt="Event photo" className="w-full h-28 object-cover" loading="lazy" />
+          </div>
+        )}
       </div>
     </AnimatedSection>
   );
@@ -342,16 +385,24 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground" style={{ scrollBehavior: "smooth" }}>
+    <div className="min-h-screen text-foreground" style={{ scrollBehavior: "smooth", backgroundColor: theme === "dark" ? undefined : "#FFFBF7" }}>
       {/* Font import */}
       <style>{`
         @import url('https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&f[]=satoshi@300,400,500,700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,500;1,600&display=swap');
         .font-display { font-family: 'Clash Display', 'Satoshi', sans-serif; }
+        .font-script { font-family: 'Playfair Display', Georgia, serif; font-style: italic; }
         @keyframes floatUp {
           0%,100% { transform: translateY(0px); }
           50% { transform: translateY(-10px); }
         }
         .float-anim { animation: floatUp 3s ease-in-out infinite; }
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee { animation: marquee 30s linear infinite; }
+        .animate-marquee-slow { animation: marquee 45s linear infinite; }
       `}</style>
 
       {/* Navigation */}
@@ -416,8 +467,9 @@ export default function LandingPage() {
             <h1 className="font-display font-bold text-4xl sm:text-5xl text-foreground leading-tight">
               Every Guest.<br />
               Every Angle.<br />
-              <span className="gradient-text">One Album.</span>
+              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">One Album.</span>
             </h1>
+            <p className="font-script text-xl text-muted-foreground/80">Because every moment matters.</p>
             <p className="text-muted-foreground text-lg leading-relaxed max-w-md">
               Free QR code photo sharing for your events. Guests scan, upload, and relive moments — no app needed.
             </p>
@@ -446,10 +498,67 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Mockup */}
+          {/* Photo collage */}
           <div className="float-anim">
-            <HeroMockup />
+            <HeroCollage />
           </div>
+        </div>
+      </section>
+
+      {/* Stats Bar */}
+      <section className="py-10 px-6 lg:px-12 bg-muted/40 border-y border-border/50">
+        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
+          {[
+            { value: "10,000+", label: "Events Created" },
+            { value: "1.2M+", label: "Photos Shared" },
+            { value: "4.9 ★", label: "Average Rating" },
+            { value: "98%", label: "Would Recommend" },
+          ].map((stat, i) => (
+            <div key={i} className="text-center">
+              <div className="font-display font-bold text-2xl sm:text-3xl text-foreground">{stat.value}</div>
+              <div className="text-xs text-muted-foreground mt-1 font-medium uppercase tracking-wide">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Trust Banner */}
+      <section className="py-8 px-6 lg:px-12">
+        <div className="max-w-3xl mx-auto text-center">
+          <p className="text-sm text-muted-foreground">
+            Trusted by event planners, couples, and party hosts in 40+ countries
+          </p>
+          <div className="mt-2 text-lg tracking-widest">
+            🇺🇸 🇬🇧 🇫🇷 🇪🇸 🇵🇹 🇧🇷 🇩🇪 🇮🇹 🇯🇵 🇦🇺
+          </div>
+        </div>
+      </section>
+
+      {/* Auto-scrolling Photo Carousel */}
+      <section className="py-10 overflow-hidden">
+        <div className="flex animate-marquee" style={{ width: "max-content" }}>
+          {[
+            { src: "https://images.unsplash.com/photo-1519741497674-611481863552?w=300&h=200&fit=crop", alt: "Wedding celebration" },
+            { src: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=300&h=200&fit=crop", alt: "Birthday party" },
+            { src: "https://images.unsplash.com/photo-1496843916299-590492c751f4?w=300&h=200&fit=crop", alt: "Party celebration" },
+            { src: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=300&h=200&fit=crop", alt: "Reception dance" },
+            { src: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=300&h=200&fit=crop", alt: "Concert crowd" },
+            { src: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=300&h=200&fit=crop", alt: "Corporate event" },
+            { src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop", alt: "Outdoor gathering" },
+            { src: "https://images.unsplash.com/photo-1529543544282-ea99407407c1?w=300&h=200&fit=crop", alt: "Group selfie" },
+            { src: "https://images.unsplash.com/photo-1519741497674-611481863552?w=300&h=200&fit=crop", alt: "Wedding celebration" },
+            { src: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=300&h=200&fit=crop", alt: "Birthday party" },
+            { src: "https://images.unsplash.com/photo-1496843916299-590492c751f4?w=300&h=200&fit=crop", alt: "Party celebration" },
+            { src: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=300&h=200&fit=crop", alt: "Reception dance" },
+            { src: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=300&h=200&fit=crop", alt: "Concert crowd" },
+            { src: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=300&h=200&fit=crop", alt: "Corporate event" },
+            { src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop", alt: "Outdoor gathering" },
+            { src: "https://images.unsplash.com/photo-1529543544282-ea99407407c1?w=300&h=200&fit=crop", alt: "Group selfie" },
+          ].map((photo, i) => (
+            <div key={i} className="flex-shrink-0 w-56 h-36 mx-2 rounded-xl overflow-hidden shadow-md">
+              <img src={photo.src} alt={photo.alt} className="w-full h-full object-cover" loading="lazy" />
+            </div>
+          ))}
         </div>
       </section>
 
@@ -466,6 +575,91 @@ export default function LandingPage() {
             <StepCard number="2" icon={QrCode} title="Share QR Code" desc="Print it, display it, text it. Guests scan with any phone camera — no app download needed." delay={200} />
             <StepCard number="3" icon={Images} title="Collect Memories" desc="Photos pour in from every angle. Browse, like, and download your complete album." delay={300} />
           </div>
+        </div>
+      </section>
+
+      {/* Scrolling Event-Type Badges */}
+      <section className="py-8 overflow-hidden border-y border-border/30">
+        <div className="flex animate-marquee-slow" style={{ width: "max-content" }}>
+          {[
+            "💒 Weddings", "🎂 Birthdays", "🏢 Corporate", "👶 Baby Showers", "🎓 Graduations",
+            "🎄 Holiday Parties", "🎤 Concerts", "🏖️ Reunions", "🥂 Engagements", "🎃 Halloween",
+            "🍾 New Year's Eve", "🏆 Award Nights", "🎪 Festivals", "🙏 Memorials",
+            "💒 Weddings", "🎂 Birthdays", "🏢 Corporate", "👶 Baby Showers", "🎓 Graduations",
+            "🎄 Holiday Parties", "🎤 Concerts", "🏖️ Reunions", "🥂 Engagements", "🎃 Halloween",
+            "🍾 New Year's Eve", "🏆 Award Nights", "🎪 Festivals", "🙏 Memorials",
+          ].map((badge, i) => (
+            <span
+              key={i}
+              className="flex-shrink-0 mx-3 px-5 py-2 rounded-full bg-primary/5 dark:bg-primary/10 text-sm font-display font-semibold text-foreground whitespace-nowrap border border-primary/10"
+            >
+              {badge}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* Use Cases */}
+      <section className="py-20 px-6 lg:px-12">
+        <div className="max-w-5xl mx-auto">
+          <AnimatedSection className="text-center mb-14">
+            <div className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 font-display">Perfect For</div>
+            <h2 className="font-display font-bold text-4xl text-foreground mb-4">Every Kind of Event</h2>
+            <p className="text-muted-foreground text-base max-w-lg mx-auto">From intimate gatherings to massive celebrations — LensParty works for all of them.</p>
+          </AnimatedSection>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <UseCaseCard emoji="💒" title="Weddings" desc="Capture every moment from every guest's perspective" bg="bg-purple-50 dark:bg-purple-950/30" delay={0} />
+            <UseCaseCard emoji="🎂" title="Birthday Parties" desc="All the candid shots in one place" bg="bg-yellow-50 dark:bg-yellow-950/30" delay={60} />
+            <UseCaseCard emoji="🏢" title="Corporate Events" desc="Professional photo collection made easy" bg="bg-blue-50 dark:bg-blue-950/30" delay={120} />
+            <UseCaseCard emoji="👶" title="Baby Showers" desc="Every adorable moment, nothing missed" bg="bg-pink-50 dark:bg-pink-950/30" delay={180} />
+            <UseCaseCard emoji="🎓" title="Graduations" desc="Celebrate the milestone from all angles" bg="bg-green-50 dark:bg-green-950/30" delay={240} />
+            <UseCaseCard emoji="🎉" title="Any Celebration" desc="If people are there, photos should be too" bg="bg-orange-50 dark:bg-orange-950/30" delay={300} />
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Signals */}
+      <section className="py-16 px-6 lg:px-12 bg-muted/30">
+        <div className="max-w-4xl mx-auto">
+          <AnimatedSection className="text-center mb-10">
+            <h2 className="font-display font-bold text-3xl text-foreground">Why Hosts Trust LensParty</h2>
+          </AnimatedSection>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { emoji: "🔒", title: "100% Private & Secure", desc: "Your photos are yours. Enterprise-grade encryption, no third-party sharing." },
+              { emoji: "💯", title: "Your Memories, Your Copyright", desc: "We never claim ownership of your content. Download anytime." },
+              { emoji: "💸", title: "14-Day Money Back", desc: "Not satisfied? Full refund within 14 days, no questions asked." },
+              { emoji: "🛟", title: "7-Day Support Team", desc: "Real humans, not chatbots. We're here when you need us." },
+            ].map((signal, i) => (
+              <AnimatedSection key={i} delay={i * 80}>
+                <div className="text-center p-5 rounded-xl bg-card border border-border h-full">
+                  <div className="text-3xl mb-3">{signal.emoji}</div>
+                  <h3 className="font-display font-bold text-sm text-foreground mb-1">{signal.title}</h3>
+                  <p className="text-muted-foreground text-xs leading-relaxed">{signal.desc}</p>
+                </div>
+              </AnimatedSection>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pain Points */}
+      <section className="py-20 px-6 lg:px-12">
+        <div className="max-w-4xl mx-auto">
+          <AnimatedSection className="text-center mb-14">
+            <div className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 font-display">The Problem</div>
+            <h2 className="font-display font-bold text-4xl text-foreground mb-4">Stop Chasing Photos After Every Event</h2>
+            <p className="text-muted-foreground text-base max-w-lg mx-auto">Sound familiar? You're not alone.</p>
+          </AnimatedSection>
+          <div className="grid md:grid-cols-3 gap-5 mb-10">
+            <PainPointCard emoji="😤" title="Endless Follow-Ups" desc="Texting every guest individually, creating group chats, posting on social media — and still missing half the photos." delay={0} />
+            <PainPointCard emoji="📉" title="Compressed Quality" desc="WhatsApp and Instagram crush your photos down to nothing. Say goodbye to printable resolution." delay={80} />
+            <PainPointCard emoji="💸" title="Expensive Alternatives" desc="Most photo-sharing apps charge $50+ per event with limited storage and guest caps." delay={160} />
+          </div>
+          <AnimatedSection delay={200} className="text-center">
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent mb-6" />
+            <p className="font-display font-semibold text-lg text-foreground">LensParty fixes all of this — <span className="text-primary">for free.</span></p>
+          </AnimatedSection>
         </div>
       </section>
 
@@ -573,31 +767,10 @@ export default function LandingPage() {
             <div className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 font-display">Loved by Hosts</div>
             <h2 className="font-display font-bold text-4xl text-foreground mb-4">What People Are Saying</h2>
           </AnimatedSection>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <TestimonialCard
-              quote="Used LensParty for our wedding — 347 photos from guests we never would have seen otherwise."
-              name="Sarah & James"
-              event="Wedding"
-              delay={0}
-            />
-            <TestimonialCard
-              quote="Set up took 2 minutes. Our guests loved it. The live slideshow was the highlight of the reception."
-              name="Maria K."
-              event="Birthday Party"
-              delay={80}
-            />
-            <TestimonialCard
-              quote="We use LensParty for all our corporate events. The free tier alone beats what we were paying $50 for."
-              name="David Chen"
-              event="Event Planner"
-              delay={160}
-            />
-            <TestimonialCard
-              quote="The AI face search is incredible. Found every photo of my parents in seconds."
-              name="Priya M."
-              event="Anniversary Party"
-              delay={240}
-            />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {testimonials.map((t, i) => (
+              <TestimonialCard key={i} t={t} delay={i * 60} />
+            ))}
           </div>
         </div>
       </section>
@@ -633,6 +806,14 @@ export default function LandingPage() {
             <FaqItem
               question="How does the AI face search work?"
               answer="After uploading a reference selfie, our AI scans all event photos to find ones that contain that person's face. Results appear in seconds. The feature is available on Pro and Business plans and runs entirely on our secure servers — no data is shared with third parties."
+            />
+            <FaqItem
+              question="How is my data kept private?"
+              answer="Your photos are encrypted in transit and at rest using enterprise-grade security. We never share, sell, or use your content for training purposes. You and your guests retain full copyright ownership of all uploaded media. We comply with GDPR and CCPA, and you can request full data deletion at any time."
+            />
+            <FaqItem
+              question="What is your refund policy?"
+              answer="We offer a 14-day money-back guarantee on all paid plans. If you're not satisfied for any reason, contact our support team within 14 days of purchase for a full refund — no questions asked. The free plan, of course, costs nothing to try."
             />
           </AnimatedSection>
         </div>
