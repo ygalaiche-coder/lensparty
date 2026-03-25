@@ -75,7 +75,7 @@ function LensLogo({ size = 28 }: { size?: number }) {
 const heroPhotos = [
   { src: "https://images.unsplash.com/photo-1519741497674-611481863552?w=400&h=300&fit=crop", alt: "Wedding celebration", rotate: "-3deg", col: "col-span-1", h: "h-40" },
   { src: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400&h=300&fit=crop", alt: "Birthday party", rotate: "2deg", col: "col-span-1", h: "h-52" },
-  { src: "https://images.unsplash.com/photo-1529543544282-ea99407407c1?w=400&h=300&fit=crop", alt: "Group selfie", rotate: "-1deg", col: "col-span-1", h: "h-44" },
+  { src: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=400&h=300&fit=crop", alt: "Group selfie", rotate: "-1deg", col: "col-span-1", h: "h-44" },
   { src: "https://images.unsplash.com/photo-1496843916299-590492c751f4?w=400&h=300&fit=crop", alt: "Party celebration", rotate: "3deg", col: "col-span-1", h: "h-48" },
   { src: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=400&h=300&fit=crop", alt: "Couple dancing", rotate: "-2deg", col: "col-span-1", h: "h-36" },
   { src: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop", alt: "Corporate event", rotate: "1deg", col: "col-span-1", h: "h-52" },
@@ -545,7 +545,7 @@ export default function LandingPage() {
             { src: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=300&h=200&fit=crop", alt: "Concert crowd" },
             { src: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=300&h=200&fit=crop", alt: "Corporate event" },
             { src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop", alt: "Outdoor gathering" },
-            { src: "https://images.unsplash.com/photo-1529543544282-ea99407407c1?w=300&h=200&fit=crop", alt: "Group selfie" },
+            { src: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=300&h=200&fit=crop", alt: "Group selfie" },
             { src: "https://images.unsplash.com/photo-1519741497674-611481863552?w=300&h=200&fit=crop", alt: "Wedding celebration" },
             { src: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=300&h=200&fit=crop", alt: "Birthday party" },
             { src: "https://images.unsplash.com/photo-1496843916299-590492c751f4?w=300&h=200&fit=crop", alt: "Party celebration" },
@@ -553,7 +553,7 @@ export default function LandingPage() {
             { src: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=300&h=200&fit=crop", alt: "Concert crowd" },
             { src: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=300&h=200&fit=crop", alt: "Corporate event" },
             { src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop", alt: "Outdoor gathering" },
-            { src: "https://images.unsplash.com/photo-1529543544282-ea99407407c1?w=300&h=200&fit=crop", alt: "Group selfie" },
+            { src: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=300&h=200&fit=crop", alt: "Group selfie" },
           ].map((photo, i) => (
             <div key={i} className="flex-shrink-0 w-56 h-36 mx-2 rounded-xl overflow-hidden shadow-md">
               <img src={photo.src} alt={photo.alt} className="w-full h-full object-cover" loading="lazy" />
