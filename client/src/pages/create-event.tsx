@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import { Calendar, ArrowLeft, Loader2, Camera } from "lucide-react";
 import { Link } from "wouter";
 import type { Event } from "@shared/schema";
@@ -42,6 +43,7 @@ interface FormData {
 export default function CreateEventPage() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [eventType, setEventType] = useState("other");
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
@@ -101,20 +103,20 @@ export default function CreateEventPage() {
               <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
                 <Camera className="w-7 h-7 text-primary" />
               </div>
-              <h1 className="font-display font-bold text-xl text-foreground text-center">Create Your Event</h1>
-              <p className="text-muted-foreground text-sm text-center mt-1.5">Set up your event and get a shareable QR code in seconds.</p>
+              <h1 className="font-display font-bold text-xl text-foreground text-center">{t("createEvent.title")}</h1>
+              <p className="text-muted-foreground text-sm text-center mt-1.5">{t("createEvent.subtitle")}</p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
               {/* Event Name */}
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="name" className="font-display font-semibold text-sm">
-                  Event Name <span className="text-destructive">*</span>
+                  {t("createEvent.eventName")} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="name"
-                  placeholder="e.g. Sarah & James' Wedding"
-                  {...register("name", { required: "Event name is required" })}
+                  placeholder={t("createEvent.eventNamePlaceholder")}
+                  {...register("name", { required: t("createEvent.required") })}
                   className={errors.name ? "border-destructive" : ""}
                   data-testid="input-event-name"
                 />
@@ -124,7 +126,7 @@ export default function CreateEventPage() {
               {/* Event Date */}
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="eventDate" className="font-display font-semibold text-sm">
-                  Event Date
+                  {t("createEvent.eventDate")}
                 </Label>
                 <div className="relative">
                   <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
@@ -140,18 +142,18 @@ export default function CreateEventPage() {
 
               {/* Event Type */}
               <div className="flex flex-col gap-1.5">
-                <Label className="font-display font-semibold text-sm">Event Type</Label>
+                <Label className="font-display font-semibold text-sm">{t("createEvent.eventType")}</Label>
                 <Select value={eventType} onValueChange={setEventType}>
                   <SelectTrigger data-testid="select-event-type">
                     <SelectValue placeholder="Select event type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="wedding">Wedding</SelectItem>
-                    <SelectItem value="birthday">Birthday</SelectItem>
-                    <SelectItem value="corporate">Corporate</SelectItem>
-                    <SelectItem value="baby-shower">Baby Shower</SelectItem>
-                    <SelectItem value="graduation">Graduation</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
+                    <SelectItem value="wedding">{t("createEvent.types.wedding")}</SelectItem>
+                    <SelectItem value="birthday">{t("createEvent.types.birthday")}</SelectItem>
+                    <SelectItem value="corporate">{t("createEvent.types.corporate")}</SelectItem>
+                    <SelectItem value="baby-shower">{t("createEvent.types.babyShower")}</SelectItem>
+                    <SelectItem value="graduation">{t("createEvent.types.graduation")}</SelectItem>
+                    <SelectItem value="other">{t("createEvent.types.other")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -159,11 +161,11 @@ export default function CreateEventPage() {
               {/* Host Name */}
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="hostName" className="font-display font-semibold text-sm">
-                  Your Name
+                  {t("createEvent.yourName")}
                 </Label>
                 <Input
                   id="hostName"
-                  placeholder="e.g. Sarah & James"
+                  placeholder={t("createEvent.yourNamePlaceholder")}
                   {...register("hostName")}
                   data-testid="input-host-name"
                 />
@@ -172,11 +174,11 @@ export default function CreateEventPage() {
               {/* Description */}
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="description" className="font-display font-semibold text-sm">
-                  Description <span className="text-muted-foreground font-normal">(optional)</span>
+                  {t("createEvent.description")} <span className="text-muted-foreground font-normal">({t("createEvent.optional")})</span>
                 </Label>
                 <Textarea
                   id="description"
-                  placeholder="A short message to welcome your guests..."
+                  placeholder={t("createEvent.descriptionPlaceholder")}
                   rows={3}
                   {...register("description")}
                   className="resize-none"
@@ -192,16 +194,16 @@ export default function CreateEventPage() {
                 data-testid="button-create-event"
               >
                 {createMutation.isPending ? (
-                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Creating Event...</>
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{t("createEvent.creating")}</>
                 ) : (
-                  "Create Event"
+                  t("createEvent.createButton")
                 )}
               </Button>
             </form>
           </div>
 
           <p className="text-center text-xs text-muted-foreground mt-4">
-            Your event is free — no credit card required.
+            {t("createEvent.freeNote")}
           </p>
         </div>
       </div>

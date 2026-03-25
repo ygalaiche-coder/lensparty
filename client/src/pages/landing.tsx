@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/components/language-switcher";
 import {
   Calendar,
   QrCode,
@@ -162,8 +164,8 @@ function PainPointCard({ emoji, title, desc, delay }: { emoji: string; title: st
 }
 
 // Pricing card
-function PricingCard({ plan, price, features, popular, cta }: {
-  plan: string; price: string; features: string[]; popular?: boolean; cta?: string;
+function PricingCard({ plan, price, features, popular, cta, popularLabel, perEventLabel, freePrice }: {
+  plan: string; price: string; features: string[]; popular?: boolean; cta?: string; popularLabel?: string; perEventLabel?: string; freePrice?: string;
 }) {
   return (
     <div className={`relative rounded-2xl p-8 flex flex-col gap-4 h-full transition-all duration-200 ${
@@ -173,13 +175,13 @@ function PricingCard({ plan, price, features, popular, cta }: {
     }`}>
       {popular && (
         <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-accent text-white text-xs font-bold px-4 py-1.5 rounded-full shadow">
-          Most Popular
+          {popularLabel || "Most Popular"}
         </div>
       )}
       <div>
         <div className={`text-sm font-semibold uppercase tracking-wide mb-1 ${popular ? "text-white/70" : "text-muted-foreground"}`}>{plan}</div>
         <div className={`font-display font-bold text-4xl ${popular ? "text-white" : "text-foreground"}`}>{price}</div>
-        {price !== "$0" && <div className={`text-sm mt-1 ${popular ? "text-white/60" : "text-muted-foreground"}`}>per event</div>}
+        {price !== (freePrice || "$0") && <div className={`text-sm mt-1 ${popular ? "text-white/60" : "text-muted-foreground"}`}>{perEventLabel || "per event"}</div>}
       </div>
       <ul className="flex flex-col gap-2.5 flex-1">
         {features.map((f, i) => (
@@ -321,28 +323,28 @@ const testimonials = [
   },
 ];
 
-function TestimonialCard({ t, delay }: { t: typeof testimonials[number]; delay: number }) {
+function TestimonialCard({ testimonial, delay }: { testimonial: typeof testimonials[number]; delay: number }) {
   return (
     <AnimatedSection delay={delay}>
       <div className="p-6 rounded-xl border border-border bg-card flex flex-col gap-4 h-full">
         <div className="flex items-center gap-3">
-          <div className={`w-9 h-9 rounded-full ${t.color} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
-            {t.initials}
+          <div className={`w-9 h-9 rounded-full ${testimonial.color} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
+            {testimonial.initials}
           </div>
           <div className="min-w-0">
-            <div className="font-display font-semibold text-sm text-foreground truncate">{t.name}</div>
-            <div className="text-xs text-muted-foreground truncate">{t.event}</div>
+            <div className="font-display font-semibold text-sm text-foreground truncate">{testimonial.name}</div>
+            <div className="text-xs text-muted-foreground truncate">{testimonial.event}</div>
           </div>
         </div>
         <div className="flex gap-0.5">
           {Array.from({ length: 5 }).map((_, i) => (
-            <Star key={i} className={`w-3.5 h-3.5 ${i < t.stars ? "fill-yellow-400 text-yellow-400" : "fill-muted text-muted"}`} />
+            <Star key={i} className={`w-3.5 h-3.5 ${i < testimonial.stars ? "fill-yellow-400 text-yellow-400" : "fill-muted text-muted"}`} />
           ))}
         </div>
-        <p className="text-foreground text-sm leading-relaxed flex-1">"{t.quote}"</p>
-        {t.photo && (
+        <p className="text-foreground text-sm leading-relaxed flex-1">"{testimonial.quote}"</p>
+        {testimonial.photo && (
           <div className="rounded-lg overflow-hidden border border-border">
-            <img src={t.photo} alt="Event photo" className="w-full h-28 object-cover" loading="lazy" />
+            <img src={testimonial.photo} alt="Event photo" className="w-full h-28 object-cover" loading="lazy" />
           </div>
         )}
       </div>
@@ -374,6 +376,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
 
 export default function LandingPage() {
   const { theme, setTheme } = useTheme();
+  const { t } = useTranslation();
 
   const { data: user } = useQuery<{ id: number; email: string; name: string; eventsCount: number } | null>({
     queryKey: ["/api/auth/me"],
@@ -412,12 +415,12 @@ export default function LandingPage() {
           <span className="font-display font-bold text-lg text-foreground">LensParty</span>
         </div>
         <nav className="hidden md:flex items-center gap-6 flex-1">
-          <button onClick={() => scrollTo("features")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</button>
-          <button onClick={() => scrollTo("pricing")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</button>
-          <button onClick={() => scrollTo("how-it-works")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">How It Works</button>
+          <button onClick={() => scrollTo("features")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.features")}</button>
+          <button onClick={() => scrollTo("pricing")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.pricing")}</button>
+          <button onClick={() => scrollTo("how-it-works")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.howItWorks")}</button>
           {user && (
             <Link href="/my-events">
-              <span className="text-sm text-primary font-semibold hover:text-primary/80 transition-colors cursor-pointer" data-testid="link-my-events">My Events</span>
+              <span className="text-sm text-primary font-semibold hover:text-primary/80 transition-colors cursor-pointer" data-testid="link-my-events">{t("nav.myEvents")}</span>
             </Link>
           )}
         </nav>
@@ -429,20 +432,21 @@ export default function LandingPage() {
           >
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
+          <LanguageSwitcher />
           {user ? (
             <Link href="/my-events">
               <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 font-display font-semibold" data-testid="button-nav-my-events">
-                My Events
+                {t("nav.myEvents")}
               </Button>
             </Link>
           ) : (
             <>
               <Link href="/login">
-                <span className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer font-medium" data-testid="link-sign-in">Sign In</span>
+                <span className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer font-medium" data-testid="link-sign-in">{t("nav.signIn")}</span>
               </Link>
               <Link href="/login">
                 <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 font-display font-semibold" data-testid="button-nav-create">
-                  Get Started Free
+                  {t("nav.getStarted")}
                 </Button>
               </Link>
             </>
@@ -462,16 +466,16 @@ export default function LandingPage() {
           <div className="flex flex-col gap-6">
             <div className="inline-flex items-center gap-2 bg-primary/10 dark:bg-primary/20 rounded-full px-4 py-1.5 w-fit">
               <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-              <span className="text-xs font-semibold text-primary font-display">Free QR Photo Sharing</span>
+              <span className="text-xs font-semibold text-primary font-display">{t("hero.badge")}</span>
             </div>
             <h1 className="font-display font-bold text-4xl sm:text-5xl text-foreground leading-tight">
-              Every Guest.<br />
-              Every Angle.<br />
-              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">One Album.</span>
+              {t("hero.title1")}<br />
+              {t("hero.title2")}<br />
+              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{t("hero.title3")}</span>
             </h1>
-            <p className="font-script text-xl text-muted-foreground/80">Because every moment matters.</p>
+            <p className="font-script text-xl text-muted-foreground/80">{t("hero.tagline")}</p>
             <p className="text-muted-foreground text-lg leading-relaxed max-w-md">
-              Free QR code photo sharing for your events. Guests scan, upload, and relive moments — no app needed.
+              {t("hero.subtitle")}
             </p>
             <div className="flex flex-wrap gap-3">
               <Link href="/login">
@@ -479,7 +483,7 @@ export default function LandingPage() {
                   className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-primary-foreground font-display font-semibold px-6 py-5 text-base shadow-lg shadow-primary/25"
                   data-testid="button-hero-create"
                 >
-                  Get Started Free
+                  {t("hero.cta")}
                 </Button>
               </Link>
               <Button
@@ -488,13 +492,13 @@ export default function LandingPage() {
                 onClick={() => scrollTo("how-it-works")}
                 data-testid="button-hero-how"
               >
-                See How It Works
+                {t("hero.howItWorks")}
               </Button>
             </div>
             <div className="flex items-center gap-4 text-xs text-muted-foreground pt-2">
-              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-green-500" />No credit card</div>
-              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-green-500" />Free forever plan</div>
-              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-green-500" />Setup in 30 seconds</div>
+              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-green-500" />{t("hero.noCreditCard")}</div>
+              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-green-500" />{t("hero.freePlan")}</div>
+              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-green-500" />{t("hero.quickSetup")}</div>
             </div>
           </div>
 
@@ -509,10 +513,10 @@ export default function LandingPage() {
       <section className="py-10 px-6 lg:px-12 bg-muted/40 border-y border-border/50">
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
-            { value: "10,000+", label: "Events Created" },
-            { value: "1.2M+", label: "Photos Shared" },
-            { value: "4.9 ★", label: "Average Rating" },
-            { value: "98%", label: "Would Recommend" },
+            { value: "10,000+", label: t("stats.events") },
+            { value: "1.2M+", label: t("stats.photos") },
+            { value: "4.9 ★", label: t("stats.rating") },
+            { value: "98%", label: t("stats.recommend") },
           ].map((stat, i) => (
             <div key={i} className="text-center">
               <div className="font-display font-bold text-2xl sm:text-3xl text-foreground">{stat.value}</div>
@@ -526,7 +530,7 @@ export default function LandingPage() {
       <section className="py-8 px-6 lg:px-12">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-sm text-muted-foreground">
-            Trusted by event planners, couples, and party hosts in 40+ countries
+            {t("trust.banner")}
           </p>
           <div className="mt-2 text-lg tracking-widest">
             🇺🇸 🇬🇧 🇫🇷 🇪🇸 🇵🇹 🇧🇷 🇩🇪 🇮🇹 🇯🇵 🇦🇺
@@ -566,29 +570,29 @@ export default function LandingPage() {
       <section id="how-it-works" className="py-20 px-6 lg:px-12 bg-muted/30">
         <div className="max-w-5xl mx-auto">
           <AnimatedSection className="text-center mb-14">
-            <div className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 font-display">Simple Process</div>
-            <h2 className="font-display font-bold text-4xl text-foreground mb-4">How It Works</h2>
-            <p className="text-muted-foreground text-base max-w-lg mx-auto">Get your event photo album set up in under a minute.</p>
+            <div className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 font-display">{t("howItWorks.label")}</div>
+            <h2 className="font-display font-bold text-4xl text-foreground mb-4">{t("howItWorks.title")}</h2>
+            <p className="text-muted-foreground text-base max-w-lg mx-auto">{t("howItWorks.subtitle")}</p>
           </AnimatedSection>
           <div className="grid md:grid-cols-3 gap-10">
-            <StepCard number="1" icon={Calendar} title="Create Your Event" desc="Name your event, pick a date, customize your gallery theme. Takes 30 seconds." delay={100} />
-            <StepCard number="2" icon={QrCode} title="Share QR Code" desc="Print it, display it, text it. Guests scan with any phone camera — no app download needed." delay={200} />
-            <StepCard number="3" icon={Images} title="Collect Memories" desc="Photos and videos pour in from every angle. Browse, like, and download your complete album." delay={300} />
+            <StepCard number="1" icon={Calendar} title={t("howItWorks.step1Title")} desc={t("howItWorks.step1Desc")} delay={100} />
+            <StepCard number="2" icon={QrCode} title={t("howItWorks.step2Title")} desc={t("howItWorks.step2Desc")} delay={200} />
+            <StepCard number="3" icon={Images} title={t("howItWorks.step3Title")} desc={t("howItWorks.step3Desc")} delay={300} />
           </div>
 
           {/* Zero Friction Banner */}
           <AnimatedSection delay={400} className="mt-16">
             <div className="relative rounded-2xl bg-gradient-to-r from-primary/10 via-accent/5 to-primary/10 dark:from-primary/20 dark:via-accent/10 dark:to-primary/20 border border-primary/15 p-8 md:p-10">
               <div className="text-center mb-8">
-                <h3 className="font-display font-bold text-2xl md:text-3xl text-foreground mb-2">Zero Friction for Your Guests</h3>
-                <p className="text-muted-foreground text-base">Your guests just scan and upload. That's it. Nothing else.</p>
+                <h3 className="font-display font-bold text-2xl md:text-3xl text-foreground mb-2">{t("zeroFriction.title")}</h3>
+                <p className="text-muted-foreground text-base">{t("zeroFriction.subtitle")}</p>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                 {[
-                  { emoji: "📱", title: "No App to Download", desc: "Works instantly in any browser. iPhone, Android, anything." },
-                  { emoji: "🔓", title: "No Login Required", desc: "Guests never create an account. Zero sign-up friction." },
-                  { emoji: "💰", title: "No Cost for Guests", desc: "Completely free for every guest. No hidden fees, ever." },
-                  { emoji: "🧠", title: "No Tech Skills Needed", desc: "If they can take a selfie, they can use LensParty." },
+                  { emoji: "📱", title: t("zeroFriction.noApp"), desc: t("zeroFriction.noAppDesc") },
+                  { emoji: "🔓", title: t("zeroFriction.noLogin"), desc: t("zeroFriction.noLoginDesc") },
+                  { emoji: "💰", title: t("zeroFriction.noCost"), desc: t("zeroFriction.noCostDesc") },
+                  { emoji: "🧠", title: t("zeroFriction.noTech"), desc: t("zeroFriction.noTechDesc") },
                 ].map((item, i) => (
                   <div key={i} className="text-center flex flex-col items-center gap-2">
                     <div className="text-3xl md:text-4xl">{item.emoji}</div>
@@ -598,8 +602,8 @@ export default function LandingPage() {
                 ))}
               </div>
               <div className="mt-8 text-center">
-                <p className="font-serif italic text-primary/70 text-base">"My 80-year-old grandmother figured it out in 10 seconds."</p>
-                <p className="text-muted-foreground text-xs mt-1">— Maria K., Birthday Party Host</p>
+                <p className="font-serif italic text-primary/70 text-base">{t("zeroFriction.quote")}</p>
+                <p className="text-muted-foreground text-xs mt-1">{t("zeroFriction.quoteAuthor")}</p>
               </div>
             </div>
           </AnimatedSection>
@@ -631,17 +635,17 @@ export default function LandingPage() {
       <section className="py-20 px-6 lg:px-12">
         <div className="max-w-5xl mx-auto">
           <AnimatedSection className="text-center mb-14">
-            <div className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 font-display">Perfect For</div>
-            <h2 className="font-display font-bold text-4xl text-foreground mb-4">Every Kind of Event</h2>
-            <p className="text-muted-foreground text-base max-w-lg mx-auto">From intimate gatherings to massive celebrations — LensParty works for all of them.</p>
+            <div className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 font-display">{t("useCases.label")}</div>
+            <h2 className="font-display font-bold text-4xl text-foreground mb-4">{t("useCases.title")}</h2>
+            <p className="text-muted-foreground text-base max-w-lg mx-auto">{t("useCases.subtitle")}</p>
           </AnimatedSection>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <UseCaseCard emoji="💒" title="Weddings" desc="Capture every moment from every guest's perspective" bg="bg-purple-50 dark:bg-purple-950/30" delay={0} />
-            <UseCaseCard emoji="🎂" title="Birthday Parties" desc="All the candid shots in one place" bg="bg-yellow-50 dark:bg-yellow-950/30" delay={60} />
-            <UseCaseCard emoji="🏢" title="Corporate Events" desc="Professional photo collection made easy" bg="bg-blue-50 dark:bg-blue-950/30" delay={120} />
-            <UseCaseCard emoji="👶" title="Baby Showers" desc="Every adorable moment, nothing missed" bg="bg-pink-50 dark:bg-pink-950/30" delay={180} />
-            <UseCaseCard emoji="🎓" title="Graduations" desc="Celebrate the milestone from all angles" bg="bg-green-50 dark:bg-green-950/30" delay={240} />
-            <UseCaseCard emoji="🎉" title="Any Celebration" desc="If people are there, photos should be too" bg="bg-orange-50 dark:bg-orange-950/30" delay={300} />
+            <UseCaseCard emoji="💒" title={t("useCases.weddings")} desc={t("useCases.weddingsDesc")} bg="bg-purple-50 dark:bg-purple-950/30" delay={0} />
+            <UseCaseCard emoji="🎂" title={t("useCases.birthdays")} desc={t("useCases.birthdaysDesc")} bg="bg-yellow-50 dark:bg-yellow-950/30" delay={60} />
+            <UseCaseCard emoji="🏢" title={t("useCases.corporate")} desc={t("useCases.corporateDesc")} bg="bg-blue-50 dark:bg-blue-950/30" delay={120} />
+            <UseCaseCard emoji="👶" title={t("useCases.babyShower")} desc={t("useCases.babyShowerDesc")} bg="bg-pink-50 dark:bg-pink-950/30" delay={180} />
+            <UseCaseCard emoji="🎓" title={t("useCases.graduations")} desc={t("useCases.graduationsDesc")} bg="bg-green-50 dark:bg-green-950/30" delay={240} />
+            <UseCaseCard emoji="🎉" title={t("useCases.celebrations")} desc={t("useCases.celebrationsDesc")} bg="bg-orange-50 dark:bg-orange-950/30" delay={300} />
           </div>
         </div>
       </section>
@@ -650,14 +654,14 @@ export default function LandingPage() {
       <section className="py-16 px-6 lg:px-12 bg-muted/30">
         <div className="max-w-4xl mx-auto">
           <AnimatedSection className="text-center mb-10">
-            <h2 className="font-display font-bold text-3xl text-foreground">Why Hosts Trust LensParty</h2>
+            <h2 className="font-display font-bold text-3xl text-foreground">{t("trust.title")}</h2>
           </AnimatedSection>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { emoji: "🔒", title: "100% Private & Secure", desc: "Your photos are yours. Enterprise-grade encryption, no third-party sharing." },
-              { emoji: "💯", title: "Your Memories, Your Copyright", desc: "We never claim ownership of your content. Download anytime." },
-              { emoji: "💸", title: "14-Day Money Back", desc: "Not satisfied? Full refund within 14 days, no questions asked." },
-              { emoji: "🛟", title: "7-Day Support Team", desc: "Real humans, not chatbots. We're here when you need us." },
+              { emoji: "🔒", title: t("trust.privacy"), desc: t("trust.privacyDesc") },
+              { emoji: "💯", title: t("trust.ownership"), desc: t("trust.ownershipDesc") },
+              { emoji: "💸", title: t("trust.guarantee"), desc: t("trust.guaranteeDesc") },
+              { emoji: "🛟", title: t("trust.support"), desc: t("trust.supportDesc") },
             ].map((signal, i) => (
               <AnimatedSection key={i} delay={i * 80}>
                 <div className="text-center p-5 rounded-xl bg-card border border-border h-full">
@@ -675,18 +679,18 @@ export default function LandingPage() {
       <section className="py-20 px-6 lg:px-12">
         <div className="max-w-4xl mx-auto">
           <AnimatedSection className="text-center mb-14">
-            <div className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 font-display">The Problem</div>
-            <h2 className="font-display font-bold text-4xl text-foreground mb-4">Stop Chasing Photos After Every Event</h2>
-            <p className="text-muted-foreground text-base max-w-lg mx-auto">Sound familiar? You're not alone.</p>
+            <div className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 font-display">{t("painPoints.subtitle")}</div>
+            <h2 className="font-display font-bold text-4xl text-foreground mb-4">{t("painPoints.title")}</h2>
+            <p className="text-muted-foreground text-base max-w-lg mx-auto">{t("painPoints.subtitle")}</p>
           </AnimatedSection>
           <div className="grid md:grid-cols-3 gap-5 mb-10">
-            <PainPointCard emoji="😤" title="Endless Follow-Ups" desc="Texting every guest individually, creating group chats, posting on social media — and still missing half the photos." delay={0} />
-            <PainPointCard emoji="📉" title="Compressed Quality" desc="WhatsApp and Instagram crush your photos down to nothing. Say goodbye to printable resolution." delay={80} />
-            <PainPointCard emoji="💸" title="Expensive Alternatives" desc="Most photo-sharing apps charge $50+ per event with limited storage and guest caps." delay={160} />
+            <PainPointCard emoji="😤" title={t("painPoints.followUps")} desc={t("painPoints.followUpsDesc")} delay={0} />
+            <PainPointCard emoji="📉" title={t("painPoints.quality")} desc={t("painPoints.qualityDesc")} delay={80} />
+            <PainPointCard emoji="💸" title={t("painPoints.expensive")} desc={t("painPoints.expensiveDesc")} delay={160} />
           </div>
           <AnimatedSection delay={200} className="text-center">
             <div className="w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent mb-6" />
-            <p className="font-display font-semibold text-lg text-foreground">LensParty fixes all of this — <span className="text-primary">for free.</span></p>
+            <p className="font-display font-semibold text-lg text-foreground">{t("painPoints.solution")}</p>
           </AnimatedSection>
         </div>
       </section>
@@ -695,17 +699,17 @@ export default function LandingPage() {
       <section id="features" className="py-20 px-6 lg:px-12">
         <div className="max-w-5xl mx-auto">
           <AnimatedSection className="text-center mb-14">
-            <div className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 font-display">Everything You Need</div>
-            <h2 className="font-display font-bold text-4xl text-foreground mb-4">Packed With Features</h2>
-            <p className="text-muted-foreground text-base max-w-lg mx-auto">Professional-grade tools that just work, at a fraction of the cost of alternatives.</p>
+            <div className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 font-display">{t("features.label")}</div>
+            <h2 className="font-display font-bold text-4xl text-foreground mb-4">{t("features.title")}</h2>
+            <p className="text-muted-foreground text-base max-w-lg mx-auto">{t("features.subtitle")}</p>
           </AnimatedSection>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            <FeatureCard icon={Smartphone} title="No App Required" desc="Guests scan a QR code and upload directly from their browser. Zero friction." delay={0} />
-            <FeatureCard icon={ScanFace} title="AI Face Search" desc="Find every photo of a specific person instantly. Built-in, not an add-on." delay={80} />
-            <FeatureCard icon={MonitorPlay} title="Live Slideshow" desc="Display photos in real-time on any TV or projector. New uploads animate in live." delay={160} />
-            <FeatureCard icon={Mic} title="Audio & Video Guestbook" desc="Guests leave voice and video messages alongside their photos." delay={240} />
-            <FeatureCard icon={ShieldCheck} title="AI Smart Moderation" desc="Auto-filter inappropriate content so you can relax and enjoy your event." delay={320} />
-            <FeatureCard icon={Palette} title="Beautiful Gallery Themes" desc="20+ customizable themes. Your gallery, your style." delay={400} />
+            <FeatureCard icon={Smartphone} title={t("features.noApp")} desc={t("features.noAppDesc")} delay={0} />
+            <FeatureCard icon={ScanFace} title={t("features.faceSearch")} desc={t("features.faceSearchDesc")} delay={80} />
+            <FeatureCard icon={MonitorPlay} title={t("features.slideshow")} desc={t("features.slideshowDesc")} delay={160} />
+            <FeatureCard icon={Mic} title={t("features.guestbook")} desc={t("features.guestbookDesc")} delay={240} />
+            <FeatureCard icon={ShieldCheck} title={t("features.moderation")} desc={t("features.moderationDesc")} delay={320} />
+            <FeatureCard icon={Palette} title={t("features.themes")} desc={t("features.themesDesc")} delay={400} />
           </div>
         </div>
       </section>
@@ -714,60 +718,41 @@ export default function LandingPage() {
       <section id="pricing" className="py-20 px-6 lg:px-12 bg-muted/30">
         <div className="max-w-5xl mx-auto">
           <AnimatedSection className="text-center mb-14">
-            <div className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 font-display">Simple Pricing</div>
-            <h2 className="font-display font-bold text-4xl text-foreground mb-4">Plans for Every Event</h2>
-            <p className="text-muted-foreground text-base max-w-lg mx-auto">Start free, upgrade when you need more. No surprise charges.</p>
+            <div className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 font-display">{t("pricing.label")}</div>
+            <h2 className="font-display font-bold text-4xl text-foreground mb-4">{t("pricing.title")}</h2>
+            <p className="text-muted-foreground text-base max-w-lg mx-auto">{t("pricing.subtitle")}</p>
           </AnimatedSection>
           <div className="grid md:grid-cols-3 gap-6 items-center">
             <AnimatedSection delay={0}>
               <PricingCard
-                plan="Free"
-                price="$0"
-                cta="Start Free"
-                features={[
-                  "1 event",
-                  "Up to 100 photos",
-                  "50 guests",
-                  "30-day upload window",
-                  "6-month storage",
-                  "Basic gallery theme",
-                  "LensParty watermark",
-                ]}
+                plan={t("pricing.free")}
+                price={t("currency.free")}
+                cta={t("pricing.startFree")}
+                freePrice={t("currency.free")}
+                perEventLabel={t("pricing.perEvent")}
+                features={t("pricing.freeFeatures", { returnObjects: true }) as string[]}
               />
             </AnimatedSection>
             <AnimatedSection delay={100}>
               <PricingCard
-                plan="Pro"
-                price="$19.99"
+                plan={t("pricing.pro")}
+                price={t("currency.pro")}
                 popular
-                cta="Get Pro"
-                features={[
-                  "Unlimited photos & guests",
-                  "AI face search",
-                  "Audio & video guestbook",
-                  "Live slideshow",
-                  "20+ gallery themes",
-                  "12-month upload window",
-                  "24-month storage",
-                  "No watermark",
-                ]}
+                cta={t("pricing.getPro")}
+                popularLabel={t("pricing.mostPopular")}
+                freePrice={t("currency.free")}
+                perEventLabel={t("pricing.perEvent")}
+                features={t("pricing.proFeatures", { returnObjects: true }) as string[]}
               />
             </AnimatedSection>
             <AnimatedSection delay={200}>
               <PricingCard
-                plan="Business"
-                price="$39.99"
-                cta="Get Business"
-                features={[
-                  "Everything in Pro",
-                  "5 concurrent events",
-                  "White-label branding",
-                  "RSVP management",
-                  "Analytics dashboard",
-                  "Print ordering",
-                  "AI video highlights",
-                  "Priority support",
-                ]}
+                plan={t("pricing.business")}
+                price={t("currency.business")}
+                cta={t("pricing.getBusiness")}
+                freePrice={t("currency.free")}
+                perEventLabel={t("pricing.perEvent")}
+                features={t("pricing.businessFeatures", { returnObjects: true }) as string[]}
               />
             </AnimatedSection>
           </div>
@@ -778,9 +763,9 @@ export default function LandingPage() {
       <section className="py-20 px-6 lg:px-12">
         <div className="max-w-4xl mx-auto">
           <AnimatedSection className="text-center mb-12">
-            <div className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 font-display">Competitive Edge</div>
-            <h2 className="font-display font-bold text-4xl text-foreground mb-4">How We Compare</h2>
-            <p className="text-muted-foreground text-base max-w-md mx-auto">See why thousands of hosts choose LensParty over the alternatives.</p>
+            <div className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 font-display">{t("comparison.label")}</div>
+            <h2 className="font-display font-bold text-4xl text-foreground mb-4">{t("comparison.title")}</h2>
+            <p className="text-muted-foreground text-base max-w-md mx-auto">{t("comparison.subtitle")}</p>
           </AnimatedSection>
           <AnimatedSection delay={100}>
             <ComparisonTable />
@@ -792,12 +777,12 @@ export default function LandingPage() {
       <section className="py-20 px-6 lg:px-12 bg-muted/30">
         <div className="max-w-5xl mx-auto">
           <AnimatedSection className="text-center mb-12">
-            <div className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 font-display">Loved by Hosts</div>
-            <h2 className="font-display font-bold text-4xl text-foreground mb-4">What People Are Saying</h2>
+            <div className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 font-display">{t("testimonials.label")}</div>
+            <h2 className="font-display font-bold text-4xl text-foreground mb-4">{t("testimonials.title")}</h2>
           </AnimatedSection>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {testimonials.map((t, i) => (
-              <TestimonialCard key={i} t={t} delay={i * 60} />
+            {testimonials.map((tm, i) => (
+              <TestimonialCard key={i} testimonial={tm} delay={i * 60} />
             ))}
           </div>
         </div>
@@ -807,42 +792,18 @@ export default function LandingPage() {
       <section id="faq" className="py-20 px-6 lg:px-12">
         <div className="max-w-2xl mx-auto">
           <AnimatedSection className="text-center mb-12">
-            <div className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 font-display">Got Questions?</div>
-            <h2 className="font-display font-bold text-4xl text-foreground mb-4">Frequently Asked</h2>
+            <div className="text-xs font-semibold text-primary uppercase tracking-widest mb-3 font-display">{t("faq.label")}</div>
+            <h2 className="font-display font-bold text-4xl text-foreground mb-4">{t("faq.title")}</h2>
           </AnimatedSection>
           <AnimatedSection delay={50} className="flex flex-col gap-3">
-            <FaqItem
-              question="Do guests need to download an app?"
-              answer="No app required. Guests simply scan the QR code with their phone's camera and upload directly from their browser. It works on any modern smartphone — iOS, Android, or anything else."
-            />
-            <FaqItem
-              question="How does the free plan work?"
-              answer="The free plan lets you create 1 event with up to 100 photos and 50 guests. Your gallery stays active for 6 months with a 30-day upload window. It's fully functional — great for smaller gatherings."
-            />
-            <FaqItem
-              question="How long are photos stored?"
-              answer="Free plan stores photos for 6 months. Pro plan stores them for 24 months, and Business extends to 36 months. You can always download a full ZIP backup at any time."
-            />
-            <FaqItem
-              question="Can I download all photos at once?"
-              answer="Yes! The host dashboard has a 'Download All' button that packages every photo into a ZIP file. Guests can also download individual photos directly from the gallery."
-            />
-            <FaqItem
-              question="Is it available in other languages?"
-              answer="The guest upload interface auto-detects the user's browser language and adapts accordingly. We currently support English, Spanish, French, Portuguese, and German, with more on the way."
-            />
-            <FaqItem
-              question="How does the AI face search work?"
-              answer="After uploading a reference selfie, our AI scans all event photos to find ones that contain that person's face. Results appear in seconds. The feature is available on Pro and Business plans and runs entirely on our secure servers — no data is shared with third parties."
-            />
-            <FaqItem
-              question="How is my data kept private?"
-              answer="Your photos are encrypted in transit and at rest using enterprise-grade security. We never share, sell, or use your content for training purposes. You and your guests retain full copyright ownership of all uploaded media. We comply with GDPR and CCPA, and you can request full data deletion at any time."
-            />
-            <FaqItem
-              question="What is your refund policy?"
-              answer="We offer a 14-day money-back guarantee on all paid plans. If you're not satisfied for any reason, contact our support team within 14 days of purchase for a full refund — no questions asked. The free plan, of course, costs nothing to try."
-            />
+            <FaqItem question={t("faq.q1")} answer={t("faq.a1")} />
+            <FaqItem question={t("faq.q2")} answer={t("faq.a2")} />
+            <FaqItem question={t("faq.q3")} answer={t("faq.a3")} />
+            <FaqItem question={t("faq.q4")} answer={t("faq.a4")} />
+            <FaqItem question={t("faq.q5")} answer={t("faq.a5")} />
+            <FaqItem question={t("faq.q6")} answer={t("faq.a6")} />
+            <FaqItem question={t("faq.q7")} answer={t("faq.a7")} />
+            <FaqItem question={t("faq.q8")} answer={t("faq.a8")} />
           </AnimatedSection>
         </div>
       </section>
@@ -850,14 +811,14 @@ export default function LandingPage() {
       {/* CTA Banner */}
       <section className="py-20 px-6 lg:px-12 bg-gradient-to-br from-primary via-purple-700 to-accent/80">
         <AnimatedSection className="max-w-2xl mx-auto text-center">
-          <h2 className="font-display font-bold text-4xl text-white mb-4">Ready to capture every moment?</h2>
-          <p className="text-white/80 text-base mb-8">Create your first event for free. No credit card needed.</p>
+          <h2 className="font-display font-bold text-4xl text-white mb-4">{t("cta.title")}</h2>
+          <p className="text-white/80 text-base mb-8">{t("cta.subtitle")}</p>
           <Link href="/login">
             <Button
               className="bg-white text-primary hover:bg-white/90 font-display font-bold px-8 py-5 text-base shadow-xl"
               data-testid="button-cta-create"
             >
-              Get Started Free
+              {t("cta.button")}
             </Button>
           </Link>
         </AnimatedSection>
@@ -871,9 +832,9 @@ export default function LandingPage() {
             <span className="font-display font-bold text-base text-foreground">LensParty</span>
           </div>
           <div className="flex items-center gap-5 text-sm text-muted-foreground">
-            <button onClick={() => scrollTo("features")} className="hover:text-foreground transition-colors">Features</button>
-            <button onClick={() => scrollTo("pricing")} className="hover:text-foreground transition-colors">Pricing</button>
-            <button onClick={() => scrollTo("faq")} className="hover:text-foreground transition-colors">FAQ</button>
+            <button onClick={() => scrollTo("features")} className="hover:text-foreground transition-colors">{t("nav.features")}</button>
+            <button onClick={() => scrollTo("pricing")} className="hover:text-foreground transition-colors">{t("nav.pricing")}</button>
+            <button onClick={() => scrollTo("faq")} className="hover:text-foreground transition-colors">{t("faq.label")}</button>
           </div>
           <div className="text-sm text-muted-foreground">© 2026 LensParty. All rights reserved.</div>
         </div>

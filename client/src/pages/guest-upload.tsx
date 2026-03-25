@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/components/language-switcher";
 import {
   Upload,
   Heart,
@@ -57,6 +59,7 @@ export default function GuestUploadPage() {
   const params = useParams<{ code: string }>();
   const code = params.code?.toUpperCase() || "";
   const { toast } = useToast();
+  const { t } = useTranslation();
   const qc = useQueryClient();
 
   const [guestName, setGuestName] = useState("");
@@ -196,8 +199,8 @@ export default function GuestUploadPage() {
           <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
             <Camera className="w-7 h-7 text-muted-foreground" />
           </div>
-          <h1 className="font-display font-bold text-lg text-foreground mb-2">Event Not Found</h1>
-          <p className="text-muted-foreground text-sm">The QR code may have expired or the event doesn't exist.</p>
+          <h1 className="font-display font-bold text-lg text-foreground mb-2">{t("guestUpload.eventNotFound")}</h1>
+          <p className="text-muted-foreground text-sm">{t("guestUpload.eventNotFoundDesc")}</p>
         </div>
       </div>
     );
@@ -209,6 +212,9 @@ export default function GuestUploadPage() {
 
       {/* Welcome banner */}
       <div className="bg-gradient-to-br from-primary to-purple-700 px-4 py-10 text-center relative overflow-hidden">
+        <div className="absolute top-3 right-3 z-10">
+          <LanguageSwitcher compact />
+        </div>
         <div className="absolute top-0 left-0 right-0 bottom-0 opacity-10">
           <div className="absolute top-2 left-8 w-12 h-12 rounded-full bg-white" />
           <div className="absolute bottom-2 right-12 w-8 h-8 rounded-full bg-white" />
@@ -222,16 +228,16 @@ export default function GuestUploadPage() {
           {event.description && (
             <p className="text-white/80 text-sm max-w-xs mx-auto">{event.description}</p>
           )}
-          <div className="mt-2 text-white/60 text-xs">Share your photos from today ✨</div>
+          <div className="mt-2 text-white/60 text-xs">{t("guestUpload.sharePhotos")}</div>
         </div>
       </div>
 
       <div className="max-w-lg mx-auto px-4 py-6 flex flex-col gap-6">
         {/* Name input */}
         <div className="flex flex-col gap-1.5">
-          <label className="font-display font-semibold text-sm text-foreground">Your Name <span className="text-muted-foreground font-normal">(optional)</span></label>
+          <label className="font-display font-semibold text-sm text-foreground">{t("guestUpload.yourName")} <span className="text-muted-foreground font-normal">({t("guestUpload.yourNameOptional")})</span></label>
           <Input
-            placeholder="e.g. Maria"
+            placeholder={t("guestUpload.yourNamePlaceholder")}
             value={guestName}
             onChange={e => setGuestName(e.target.value)}
             className="h-11 text-base"
@@ -241,7 +247,7 @@ export default function GuestUploadPage() {
 
         {/* Upload area */}
         <div className="flex flex-col gap-3">
-          <label className="font-display font-semibold text-sm text-foreground">Upload Photos</label>
+          <label className="font-display font-semibold text-sm text-foreground">{t("guestUpload.uploadPhotos")}</label>
 
           {/* Dropzone */}
           <div
@@ -260,8 +266,8 @@ export default function GuestUploadPage() {
               <ImagePlus className="w-7 h-7 text-primary" />
             </div>
             <div className="text-center">
-              <p className="font-display font-semibold text-sm text-foreground">Tap to select photos</p>
-              <p className="text-muted-foreground text-xs mt-1">or drag & drop · JPG, PNG, MP4 and more</p>
+              <p className="font-display font-semibold text-sm text-foreground">{t("guestUpload.tapToSelect")}</p>
+              <p className="text-muted-foreground text-xs mt-1">{t("guestUpload.dragDrop")}</p>
             </div>
           </div>
           <input
@@ -305,7 +311,7 @@ export default function GuestUploadPage() {
           {/* Caption */}
           {files.length > 0 && (
             <Input
-              placeholder="Add a caption... (optional)"
+              placeholder={t("guestUpload.addCaption")}
               value={caption}
               onChange={e => setCaption(e.target.value)}
               className="h-11 text-base"
@@ -317,7 +323,7 @@ export default function GuestUploadPage() {
           {uploadDone ? (
             <div className="flex items-center justify-center gap-2 py-3 text-green-600 font-display font-semibold text-sm">
               <CheckCircle2 className="w-5 h-5" />
-              Photos uploaded successfully!
+              {t("guestUpload.uploadSuccess")}
             </div>
           ) : (
             <Button
@@ -327,9 +333,9 @@ export default function GuestUploadPage() {
               data-testid="button-upload"
             >
               {uploading ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Uploading...</>
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{t("guestUpload.uploading")}</>
               ) : (
-                <><Upload className="w-4 h-4 mr-2" />Upload {files.length > 0 ? `${files.length} photo${files.length > 1 ? "s" : ""}` : "Photos"}</>
+                <><Upload className="w-4 h-4 mr-2" />{t("guestUpload.uploadButton")} {files.length > 0 ? `(${files.length})` : ""}</>
               )}
             </Button>
           )}
@@ -337,14 +343,14 @@ export default function GuestUploadPage() {
 
         {/* Gallery */}
         <div className="flex flex-col gap-3">
-          <h2 className="font-display font-bold text-base text-foreground">Event Gallery</h2>
+          <h2 className="font-display font-bold text-base text-foreground">{t("guestUpload.eventGallery")}</h2>
           {photosLoading ? (
             <div className="photo-grid">
               {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-32 rounded-xl" />)}
             </div>
           ) : photos.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-muted-foreground text-sm">Be the first to upload a photo!</p>
+              <p className="text-muted-foreground text-sm">{t("guestUpload.beFirst")}</p>
             </div>
           ) : (
             <div className="photo-grid">
@@ -365,11 +371,11 @@ export default function GuestUploadPage() {
           <div className="flex flex-col gap-3">
             <h2 className="font-display font-bold text-base text-foreground flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-primary" />
-              Leave a Message
+              {t("guestUpload.leaveMessage")}
             </h2>
             <div className="flex gap-2">
               <Input
-                placeholder="Write a message for the host..."
+                placeholder={t("guestUpload.messagePlaceholder")}
                 value={guestMessage}
                 onChange={e => setGuestMessage(e.target.value)}
                 className="flex-1 h-11 text-base"

@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import {
   QrCode,
   Images,
@@ -46,6 +47,7 @@ export default function EventDashboard() {
   const params = useParams<{ id: string }>();
   const eventId = parseInt(params.id || "0");
   const { toast } = useToast();
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const [activeTab, setActiveTab] = useState("photos");
 
@@ -172,7 +174,7 @@ export default function EventDashboard() {
           <Link href={`/slideshow/${eventId}`}>
             <Button variant="outline" size="sm" className="gap-2" data-testid="button-open-slideshow">
               <MonitorPlay className="w-4 h-4" />
-              Slideshow
+              {t("dashboard.slideshow")}
             </Button>
           </Link>
         </div>
@@ -208,7 +210,7 @@ export default function EventDashboard() {
             <Link href={`/upgrade/${eventId}`}>
               <Button size="sm" className="gap-1.5 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-primary-foreground font-display font-semibold shadow-lg shadow-primary/20" data-testid="button-upgrade">
                 <Sparkles className="w-3.5 h-3.5" />
-                Upgrade
+                {t("dashboard.upgrade")}
               </Button>
             </Link>
           )}
@@ -217,9 +219,9 @@ export default function EventDashboard() {
         {/* Stats row */}
         <div className="grid grid-cols-3 gap-4">
           {[
-            { icon: Images, label: "Photos", value: photos.length },
-            { icon: Users, label: "Guests", value: guestCount },
-            { icon: QrCode, label: "QR Scans", value: "—" },
+            { icon: Images, label: t("dashboard.photos"), value: photos.length },
+            { icon: Users, label: t("dashboard.guests"), value: guestCount },
+            { icon: QrCode, label: t("dashboard.qrScans"), value: "—" },
           ].map(({ icon: Icon, label, value }, i) => (
             <div key={i} className="bg-card border border-border rounded-xl p-5 flex flex-col gap-1" data-testid={`stat-${label.toLowerCase()}`}>
               <div className="flex items-center gap-2 text-muted-foreground">
@@ -242,8 +244,8 @@ export default function EventDashboard() {
           </div>
           <div className="flex flex-col gap-3 flex-1 text-center sm:text-left">
             <div>
-              <h2 className="font-display font-bold text-base text-foreground mb-1">Share this QR Code</h2>
-              <p className="text-muted-foreground text-sm">Guests scan to upload photos — no app needed.</p>
+              <h2 className="font-display font-bold text-base text-foreground mb-1">{t("dashboard.shareQR")}</h2>
+              <p className="text-muted-foreground text-sm">{t("dashboard.shareQRDesc")}</p>
             </div>
             {qrData && (
               <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2 max-w-sm">
@@ -262,20 +264,20 @@ export default function EventDashboard() {
                 data-testid="button-copy-link"
               >
                 <Copy className="w-3.5 h-3.5" />
-                Copy Link
+                {t("dashboard.copyLink")}
               </Button>
               {qrData && (
                 <a href={qrData.qrCode} download="lensparty-qr.png">
                   <Button variant="outline" size="sm" className="gap-1.5" data-testid="button-download-qr">
                     <Download className="w-3.5 h-3.5" />
-                    Download QR
+                    {t("dashboard.downloadQR")}
                   </Button>
                 </a>
               )}
               <Link href={`/event/${eventId}/print`}>
                 <Button variant="outline" size="sm" className="gap-1.5" data-testid="button-print-templates">
                   <Printer className="w-3.5 h-3.5" />
-                  Print Templates
+                  {t("dashboard.printTemplates")}
                 </Button>
               </Link>
             </div>
@@ -287,15 +289,15 @@ export default function EventDashboard() {
           <TabsList className="mb-6">
             <TabsTrigger value="photos" className="gap-2 font-display" data-testid="tab-photos">
               <Images className="w-4 h-4" />
-              Photos ({photos.length})
+              {t("dashboard.photos")} ({photos.length})
             </TabsTrigger>
             <TabsTrigger value="guestbook" className="gap-2 font-display" data-testid="tab-guestbook">
               <BookOpen className="w-4 h-4" />
-              Guestbook ({guestbook.length})
+              {t("dashboard.guestbook")} ({guestbook.length})
             </TabsTrigger>
             <TabsTrigger value="settings" className="gap-2 font-display" data-testid="tab-settings">
               <Settings className="w-4 h-4" />
-              Settings
+              {t("dashboard.settings")}
             </TabsTrigger>
           </TabsList>
 
@@ -312,8 +314,8 @@ export default function EventDashboard() {
                 <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
                   <Images className="w-7 h-7 text-muted-foreground" />
                 </div>
-                <p className="font-display font-semibold text-base text-foreground mb-1">No photos yet</p>
-                <p className="text-muted-foreground text-sm max-w-xs">Share the QR code with your guests and photos will appear here.</p>
+                <p className="font-display font-semibold text-base text-foreground mb-1">{t("dashboard.noPhotos")}</p>
+                <p className="text-muted-foreground text-sm max-w-xs">{t("dashboard.noPhotosDesc")}</p>
               </div>
             ) : (
               <div className="photo-grid">
@@ -340,8 +342,8 @@ export default function EventDashboard() {
                 <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
                   <BookOpen className="w-7 h-7 text-muted-foreground" />
                 </div>
-                <p className="font-display font-semibold text-base text-foreground mb-1">No messages yet</p>
-                <p className="text-muted-foreground text-sm">Guests can leave messages via the upload page.</p>
+                <p className="font-display font-semibold text-base text-foreground mb-1">{t("dashboard.noMessages")}</p>
+                <p className="text-muted-foreground text-sm">{t("dashboard.noMessagesDesc")}</p>
               </div>
             ) : (
               <div className="flex flex-col gap-3">
@@ -362,11 +364,11 @@ export default function EventDashboard() {
           <TabsContent value="settings">
             <div className="flex flex-col gap-5 max-w-md">
               <div className="bg-card border border-border rounded-xl p-6 flex flex-col gap-5">
-                <h3 className="font-display font-semibold text-base text-foreground">Event Settings</h3>
+                <h3 className="font-display font-semibold text-base text-foreground">{t("dashboard.eventSettings")}</h3>
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="font-semibold text-sm">AI Moderation</Label>
-                    <p className="text-xs text-muted-foreground mt-0.5">Auto-filter inappropriate uploads</p>
+                    <Label className="font-semibold text-sm">{t("dashboard.moderation")}</Label>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t("dashboard.moderationDesc")}</p>
                   </div>
                   <Switch
                     checked={!!event.moderationEnabled}
@@ -377,8 +379,8 @@ export default function EventDashboard() {
                 <div className="w-full h-px bg-border" />
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="font-semibold text-sm">Guest Guestbook</Label>
-                    <p className="text-xs text-muted-foreground mt-0.5">Allow guests to leave messages</p>
+                    <Label className="font-semibold text-sm">{t("dashboard.guestbookToggle")}</Label>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t("dashboard.guestbookToggleDesc")}</p>
                   </div>
                   <Switch
                     checked={!!event.guestbookEnabled}

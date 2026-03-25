@@ -2,6 +2,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient, getQueryFn } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { Calendar, Images, Hash, Plus, LogOut, Loader2 } from "lucide-react";
@@ -24,6 +25,7 @@ type EventWithCount = Event & { photoCount: number };
 export default function MyEventsPage() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const { data: user, isLoading: userLoading } = useQuery<{ id: number; email: string; name: string; eventsCount: number } | null>({
     queryKey: ["/api/auth/me"],
@@ -85,7 +87,7 @@ export default function MyEventsPage() {
             data-testid="button-logout"
           >
             <LogOut className="w-4 h-4 mr-1.5" />
-            Logout
+            {t("myEvents.logout")}
           </Button>
         </div>
       </header>
@@ -94,8 +96,8 @@ export default function MyEventsPage() {
       <div className="flex-1 px-6 py-10 max-w-5xl mx-auto w-full">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="font-display font-bold text-2xl text-foreground">My Events</h1>
-            <p className="text-muted-foreground text-sm mt-1">Manage your photo events</p>
+            <h1 className="font-display font-bold text-2xl text-foreground">{t("myEvents.title")}</h1>
+            <p className="text-muted-foreground text-sm mt-1">{t("myEvents.subtitle")}</p>
           </div>
           <Link href="/create">
             <Button
@@ -103,7 +105,7 @@ export default function MyEventsPage() {
               data-testid="button-create-event"
             >
               <Plus className="w-4 h-4 mr-1.5" />
-              Create New Event
+              {t("myEvents.createNew")}
             </Button>
           </Link>
         </div>
@@ -118,9 +120,9 @@ export default function MyEventsPage() {
             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
               <Images className="w-8 h-8 text-primary" />
             </div>
-            <h2 className="font-display font-bold text-xl text-foreground mb-2">No events yet</h2>
+            <h2 className="font-display font-bold text-xl text-foreground mb-2">{t("myEvents.noEvents")}</h2>
             <p className="text-muted-foreground text-sm max-w-sm mb-6">
-              Create your first event to start collecting photos from your guests.
+              {t("myEvents.noEventsDesc")}
             </p>
             <Link href="/create">
               <Button
@@ -128,7 +130,7 @@ export default function MyEventsPage() {
                 data-testid="button-empty-create"
               >
                 <Plus className="w-4 h-4 mr-1.5" />
-                Create Your First Event
+                {t("myEvents.createFirst")}
               </Button>
             </Link>
           </div>
@@ -151,7 +153,7 @@ export default function MyEventsPage() {
                     )}
                     <div className="flex items-center gap-2">
                       <Images className="w-3.5 h-3.5" />
-                      <span>{event.photoCount} photo{event.photoCount !== 1 ? "s" : ""}</span>
+                      <span>{event.photoCount} {event.photoCount !== 1 ? t("myEvents.photos") : t("myEvents.photo")}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Hash className="w-3.5 h-3.5" />

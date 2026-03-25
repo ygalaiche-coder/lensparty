@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,6 +37,7 @@ interface RegisterFormData {
 function LoginForm() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
 
   const loginMutation = useMutation({
@@ -54,13 +56,13 @@ function LoginForm() {
   return (
     <form onSubmit={handleSubmit((data) => loginMutation.mutate(data))} className="flex flex-col gap-5">
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="login-email" className="font-display font-semibold text-sm">Email</Label>
+        <Label htmlFor="login-email" className="font-display font-semibold text-sm">{t("auth.email")}</Label>
         <div className="relative">
           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <Input
             id="login-email"
             type="email"
-            placeholder="you@example.com"
+            placeholder={t("auth.emailPlaceholder")}
             className={`pl-9 ${errors.email ? "border-destructive" : ""}`}
             {...register("email", { required: "Email is required" })}
             data-testid="input-login-email"
@@ -70,13 +72,13 @@ function LoginForm() {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="login-password" className="font-display font-semibold text-sm">Password</Label>
+        <Label htmlFor="login-password" className="font-display font-semibold text-sm">{t("auth.password")}</Label>
         <div className="relative">
           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <Input
             id="login-password"
             type="password"
-            placeholder="Your password"
+            placeholder={t("auth.passwordPlaceholder")}
             className={`pl-9 ${errors.password ? "border-destructive" : ""}`}
             {...register("password", { required: "Password is required" })}
             data-testid="input-login-password"
@@ -92,9 +94,9 @@ function LoginForm() {
         data-testid="button-login"
       >
         {loginMutation.isPending ? (
-          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Signing In...</>
+          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{t("auth.signingIn")}</>
         ) : (
-          "Sign In"
+          t("auth.signIn")
         )}
       </Button>
     </form>
@@ -104,6 +106,7 @@ function LoginForm() {
 function RegisterForm() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>();
 
   const registerMutation = useMutation({
@@ -122,12 +125,12 @@ function RegisterForm() {
   return (
     <form onSubmit={handleSubmit((data) => registerMutation.mutate(data))} className="flex flex-col gap-5">
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="register-name" className="font-display font-semibold text-sm">Name</Label>
+        <Label htmlFor="register-name" className="font-display font-semibold text-sm">{t("auth.name")}</Label>
         <div className="relative">
           <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <Input
             id="register-name"
-            placeholder="Your name"
+            placeholder={t("auth.namePlaceholder")}
             className={`pl-9 ${errors.name ? "border-destructive" : ""}`}
             {...register("name", { required: "Name is required" })}
             data-testid="input-register-name"
@@ -137,13 +140,13 @@ function RegisterForm() {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="register-email" className="font-display font-semibold text-sm">Email</Label>
+        <Label htmlFor="register-email" className="font-display font-semibold text-sm">{t("auth.email")}</Label>
         <div className="relative">
           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <Input
             id="register-email"
             type="email"
-            placeholder="you@example.com"
+            placeholder={t("auth.emailPlaceholder")}
             className={`pl-9 ${errors.email ? "border-destructive" : ""}`}
             {...register("email", { required: "Email is required" })}
             data-testid="input-register-email"
@@ -153,13 +156,13 @@ function RegisterForm() {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="register-password" className="font-display font-semibold text-sm">Password</Label>
+        <Label htmlFor="register-password" className="font-display font-semibold text-sm">{t("auth.password")}</Label>
         <div className="relative">
           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <Input
             id="register-password"
             type="password"
-            placeholder="At least 6 characters"
+            placeholder={t("auth.passwordPlaceholder")}
             className={`pl-9 ${errors.password ? "border-destructive" : ""}`}
             {...register("password", {
               required: "Password is required",
@@ -178,9 +181,9 @@ function RegisterForm() {
         data-testid="button-register"
       >
         {registerMutation.isPending ? (
-          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Creating Account...</>
+          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{t("auth.creatingAccount")}</>
         ) : (
-          "Create Account"
+          t("auth.createAccount")
         )}
       </Button>
     </form>
@@ -188,6 +191,7 @@ function RegisterForm() {
 }
 
 export default function AuthPage() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <style>{`@import url('https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&f[]=satoshi@300,400,500,700&display=swap');`}</style>
@@ -211,17 +215,17 @@ export default function AuthPage() {
               <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
                 <LensLogo size={28} />
               </div>
-              <h1 className="font-display font-bold text-xl text-foreground text-center">Welcome to LensParty</h1>
-              <p className="text-muted-foreground text-sm text-center mt-1.5">Sign in to manage your events</p>
+              <h1 className="font-display font-bold text-xl text-foreground text-center">{t("auth.welcome")}</h1>
+              <p className="text-muted-foreground text-sm text-center mt-1.5">{t("auth.signInSubtitle")}</p>
             </div>
 
             <Tabs defaultValue="login" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="login" className="font-display font-semibold" data-testid="tab-login">
-                  Sign In
+                  {t("auth.signIn")}
                 </TabsTrigger>
                 <TabsTrigger value="register" className="font-display font-semibold" data-testid="tab-register">
-                  Create Account
+                  {t("auth.createAccount")}
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="login">
