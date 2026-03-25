@@ -76,12 +76,12 @@ function LensLogo({ size = 28 }: { size?: number }) {
 
 // Hero photo collage
 const heroPhotos = [
-  { src: "https://images.unsplash.com/photo-1519741497674-611481863552?w=400&h=300&fit=crop", alt: "Wedding celebration", rotate: "-3deg", col: "col-span-1", h: "h-40" },
-  { src: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400&h=300&fit=crop", alt: "Birthday party", rotate: "2deg", col: "col-span-1", h: "h-52" },
-  { src: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=400&h=300&fit=crop", alt: "Group selfie", rotate: "-1deg", col: "col-span-1", h: "h-44" },
-  { src: "https://images.unsplash.com/photo-1496843916299-590492c751f4?w=400&h=300&fit=crop", alt: "Party celebration", rotate: "3deg", col: "col-span-1", h: "h-48" },
-  { src: "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=400&h=300&fit=crop", alt: "Couple dancing", rotate: "-2deg", col: "col-span-1", h: "h-36" },
-  { src: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop", alt: "Corporate event", rotate: "1deg", col: "col-span-1", h: "h-52" },
+  { src: "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=400&h=300&fit=crop", alt: "Wedding guests taking selfie", rotate: "-3deg", col: "col-span-1", h: "h-40" },
+  { src: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&h=300&fit=crop", alt: "Friends taking group selfie", rotate: "2deg", col: "col-span-1", h: "h-52" },
+  { src: "https://images.unsplash.com/photo-1543807535-eceef0bc6599?w=400&h=300&fit=crop", alt: "Friends laughing together", rotate: "-1deg", col: "col-span-1", h: "h-44" },
+  { src: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&h=300&fit=crop", alt: "Friends celebrating with drinks", rotate: "3deg", col: "col-span-1", h: "h-48" },
+  { src: "https://images.unsplash.com/photo-1545232979-8bf68ee9b1af?w=400&h=300&fit=crop", alt: "Happy couple first dance", rotate: "-2deg", col: "col-span-1", h: "h-36" },
+  { src: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=400&h=300&fit=crop", alt: "Happy crowd at event", rotate: "1deg", col: "col-span-1", h: "h-52" },
 ];
 
 function HeroCollage() {
@@ -275,7 +275,7 @@ const testimonials = [
     stars: 5,
     initials: "SM",
     color: "bg-purple-500",
-    photo: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=300&h=200&fit=crop",
+    photo: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=300&h=200&fit=crop",
   },
   {
     quote: "Set up in 2 minutes. The live slideshow at the reception had everyone cheering when new photos appeared.",
@@ -284,7 +284,7 @@ const testimonials = [
     stars: 5,
     initials: "MK",
     color: "bg-pink-500",
-    photo: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=300&h=200&fit=crop",
+    photo: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?w=300&h=200&fit=crop",
   },
   {
     quote: "Great concept and mostly works perfectly. Wish there were more gallery themes, but for the price you can't beat it.",
@@ -311,7 +311,7 @@ const testimonials = [
     stars: 5,
     initials: "JT",
     color: "bg-emerald-500",
-    photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop",
+    photo: "https://images.unsplash.com/photo-1496024840928-4c417adf211d?w=300&h=200&fit=crop",
   },
   {
     quote: "The AI face search found every single photo of my parents at the anniversary party. In seconds.",
@@ -551,22 +551,22 @@ export default function LandingPage() {
       <section className="py-10 overflow-hidden">
         <div className="flex animate-marquee" style={{ width: "max-content" }}>
           {[
-            { src: "https://images.unsplash.com/photo-1519741497674-611481863552?w=300&h=200&fit=crop", alt: "Wedding celebration" },
-            { src: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=300&h=200&fit=crop", alt: "Birthday party" },
-            { src: "https://images.unsplash.com/photo-1496843916299-590492c751f4?w=300&h=200&fit=crop", alt: "Party celebration" },
-            { src: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=300&h=200&fit=crop", alt: "Reception dance" },
-            { src: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=300&h=200&fit=crop", alt: "Concert crowd" },
-            { src: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=300&h=200&fit=crop", alt: "Corporate event" },
-            { src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop", alt: "Outdoor gathering" },
-            { src: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=300&h=200&fit=crop", alt: "Group selfie" },
-            { src: "https://images.unsplash.com/photo-1519741497674-611481863552?w=300&h=200&fit=crop", alt: "Wedding celebration" },
-            { src: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=300&h=200&fit=crop", alt: "Birthday party" },
-            { src: "https://images.unsplash.com/photo-1496843916299-590492c751f4?w=300&h=200&fit=crop", alt: "Party celebration" },
-            { src: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=300&h=200&fit=crop", alt: "Reception dance" },
-            { src: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=300&h=200&fit=crop", alt: "Concert crowd" },
-            { src: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=300&h=200&fit=crop", alt: "Corporate event" },
-            { src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop", alt: "Outdoor gathering" },
-            { src: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=300&h=200&fit=crop", alt: "Group selfie" },
+            { src: "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=300&h=200&fit=crop", alt: "Wedding guests taking selfie" },
+            { src: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=300&h=200&fit=crop", alt: "Friends taking group selfie" },
+            { src: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=300&h=200&fit=crop", alt: "Friends celebrating with drinks" },
+            { src: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=300&h=200&fit=crop", alt: "Wedding celebration moment" },
+            { src: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?w=300&h=200&fit=crop", alt: "Friends hugging at party" },
+            { src: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=300&h=200&fit=crop", alt: "Happy crowd at event" },
+            { src: "https://images.unsplash.com/photo-1496024840928-4c417adf211d?w=300&h=200&fit=crop", alt: "Friends at sunset celebration" },
+            { src: "https://images.unsplash.com/photo-1543807535-eceef0bc6599?w=300&h=200&fit=crop", alt: "Friends laughing together" },
+            { src: "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=300&h=200&fit=crop", alt: "Wedding guests taking selfie" },
+            { src: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=300&h=200&fit=crop", alt: "Friends taking group selfie" },
+            { src: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=300&h=200&fit=crop", alt: "Friends celebrating with drinks" },
+            { src: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=300&h=200&fit=crop", alt: "Wedding celebration moment" },
+            { src: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?w=300&h=200&fit=crop", alt: "Friends hugging at party" },
+            { src: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=300&h=200&fit=crop", alt: "Happy crowd at event" },
+            { src: "https://images.unsplash.com/photo-1496024840928-4c417adf211d?w=300&h=200&fit=crop", alt: "Friends at sunset celebration" },
+            { src: "https://images.unsplash.com/photo-1543807535-eceef0bc6599?w=300&h=200&fit=crop", alt: "Friends laughing together" },
           ].map((photo, i) => (
             <div key={i} className="flex-shrink-0 w-56 h-36 mx-2 rounded-xl overflow-hidden shadow-md">
               <img src={photo.src} alt={photo.alt} className="w-full h-full object-cover" loading="lazy" />
