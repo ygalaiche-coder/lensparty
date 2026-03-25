@@ -385,11 +385,16 @@ export default function LandingPage() {
               </Button>
             </Link>
           ) : (
-            <Link href="/login">
-              <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 font-display font-semibold" data-testid="button-nav-create">
-                Get Started Free
-              </Button>
-            </Link>
+            <>
+              <Link href="/login">
+                <span className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer font-medium" data-testid="link-sign-in">Sign In</span>
+              </Link>
+              <Link href="/login">
+                <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 font-display font-semibold" data-testid="button-nav-create">
+                  Get Started Free
+                </Button>
+              </Link>
+            </>
           )}
         </div>
       </header>
