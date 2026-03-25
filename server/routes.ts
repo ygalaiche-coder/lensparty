@@ -403,7 +403,7 @@ export async function registerRoutes(
             quantity: 1,
           },
         ],
-        success_url: `${baseUrl}/#/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `${baseUrl}/#/payment-success`,
         cancel_url: `${baseUrl}/#/event/${eventId}`,
         metadata: {
           eventId: String(eventId),
