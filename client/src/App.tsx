@@ -15,6 +15,7 @@ import UpgradePage from "@/pages/upgrade";
 import PaymentSuccessPage from "@/pages/payment-success";
 import GuestUploadPage from "@/pages/guest-upload";
 import SlideshowPage from "@/pages/slideshow";
+import QRTemplatesPage from "@/pages/qr-templates";
 
 function AppRouter() {
   return (
@@ -23,6 +24,7 @@ function AppRouter() {
       <Route path="/login" component={AuthPage} />
       <Route path="/my-events" component={MyEventsPage} />
       <Route path="/create" component={CreateEventPage} />
+      <Route path="/event/:id/print" component={QRTemplatesPage} />
       <Route path="/event/:id" component={EventDashboard} />
       <Route path="/upgrade/:eventId" component={UpgradePage} />
       <Route path="/payment-success" component={PaymentSuccessPage} />

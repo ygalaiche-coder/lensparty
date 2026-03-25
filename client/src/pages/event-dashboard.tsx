@@ -23,6 +23,7 @@ import {
   Loader2,
   Calendar,
   Sparkles,
+  Printer,
 } from "lucide-react";
 import type { Event, Photo, GuestbookEntry } from "@shared/schema";
 
@@ -270,6 +271,12 @@ export default function EventDashboard() {
                   </Button>
                 </a>
               )}
+              <Link href={`/event/${eventId}/print`}>
+                <Button variant="outline" size="sm" className="gap-1.5" data-testid="button-print-templates">
+                  <Printer className="w-3.5 h-3.5" />
+                  Print Templates
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
