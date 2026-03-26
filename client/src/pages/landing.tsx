@@ -410,8 +410,8 @@ export default function LandingPage() {
       `}</style>
 
       {/* Navigation */}
-      <header className="fixed top-0 left-0 right-0 z-50 h-16 border-b border-border/50 bg-background/80 backdrop-blur-md flex items-center px-6 lg:px-12">
-        <div className="flex items-center gap-2 mr-8">
+      <header className="fixed top-0 left-0 right-0 z-50 h-16 border-b border-border/50 bg-background/80 backdrop-blur-md flex items-center px-4 md:px-6 lg:px-12">
+        <div className="flex items-center gap-2 mr-4 md:mr-8">
           <LensLogo size={28} />
           <span className="font-display font-bold text-lg text-foreground">LensParty</span>
         </div>
@@ -428,10 +428,10 @@ export default function LandingPage() {
             </Link>
           )}
         </nav>
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-2 md:gap-3">
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="w-9 h-9 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="hidden md:flex w-9 h-9 rounded-lg items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             data-testid="button-theme-toggle"
           >
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -439,17 +439,17 @@ export default function LandingPage() {
           <LanguageSwitcher />
           {user ? (
             <Link href="/my-events">
-              <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 font-display font-semibold" data-testid="button-nav-my-events">
+              <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 font-display font-semibold text-xs md:text-sm px-3 md:px-4" data-testid="button-nav-my-events">
                 {t("nav.myEvents")}
               </Button>
             </Link>
           ) : (
             <>
               <Link href="/login">
-                <span className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer font-medium" data-testid="link-sign-in">{t("nav.signIn")}</span>
+                <span className="hidden md:inline text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer font-medium" data-testid="link-sign-in">{t("nav.signIn")}</span>
               </Link>
               <Link href="/login">
-                <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 font-display font-semibold" data-testid="button-nav-create">
+                <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 font-display font-semibold text-xs md:text-sm px-3 md:px-4" data-testid="button-nav-create">
                   {t("nav.getStarted")}
                 </Button>
               </Link>

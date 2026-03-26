@@ -10,7 +10,7 @@ export default function LanguageSwitcher({ compact = false }: { compact?: boolea
       <select
         value={i18n.language}
         onChange={e => i18n.changeLanguage(e.target.value)}
-        className="appearance-none bg-transparent text-sm cursor-pointer border border-border rounded-lg px-2 py-1.5 pr-6 text-foreground hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
+        className="appearance-none bg-transparent text-xs md:text-sm cursor-pointer border border-border rounded-lg px-1.5 md:px-2 py-1.5 pr-5 md:pr-6 text-foreground hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30"
         data-testid="select-language"
       >
         {LANGUAGES.map(lang => (
@@ -19,7 +19,7 @@ export default function LanguageSwitcher({ compact = false }: { compact?: boolea
           </option>
         ))}
       </select>
-      <div className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground text-[10px]">
+      <div className="absolute right-1 md:right-1.5 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground text-[10px]">
         ▼
       </div>
     </div>
