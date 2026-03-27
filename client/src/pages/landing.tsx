@@ -77,16 +77,13 @@ function LensLogo({ size = 28 }: { size?: number }) {
 // Animated iPhone mockup showing LensParty flow
 function HeroPhoneMockup() {
   const [step, setStep] = useState(0);
-  const totalSteps = 4;
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setStep(s => (s + 1) % totalSteps);
-    }, 3000);
+    const timer = setInterval(() => setStep(s => (s + 1) % 4), 3500);
     return () => clearInterval(timer);
   }, []);
 
-  const galleryPhotos = [
+  const photos = [
     "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=200&h=200&fit=crop",
     "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=200&h=200&fit=crop",
     "https://images.unsplash.com/photo-1543807535-eceef0bc6599?w=200&h=200&fit=crop",
@@ -95,155 +92,166 @@ function HeroPhoneMockup() {
     "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=200&h=200&fit=crop",
   ];
 
+  // Screen content for each step
+  const screens = [
+    // Step 0: QR Code
+    <div key="qr" className="flex flex-col items-center justify-center h-full px-5">
+      <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
+        <QrCode className="w-4 h-4 text-primary" />
+      </div>
+      <p className="text-[10px] font-display font-bold text-gray-900 dark:text-white">Sarah's Wedding</p>
+      <p className="text-[8px] text-gray-400 mb-3">Scan to share your photos</p>
+      <div className="w-24 h-24 bg-gray-900 dark:bg-white rounded-lg p-2 mb-3">
+        <div className="w-full h-full grid grid-cols-7 gap-[1.5px]">
+          {Array.from({ length: 49 }).map((_, i) => (
+            <div key={i} className={`rounded-[0.5px] ${[0,1,2,4,5,6,7,13,14,20,21,27,28,34,35,41,42,43,44,46,47,48,8,10,12,36,38,40,16,18,22,24,26,30,32].includes(i) ? "bg-white dark:bg-gray-900" : "bg-transparent"}`} />
+          ))}
+        </div>
+      </div>
+      <div className="flex items-center gap-1 bg-green-50 dark:bg-green-950/30 rounded-full px-2.5 py-0.5">
+        <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+        <span className="text-[8px] font-semibold text-green-600 dark:text-green-400">Ready to scan</span>
+      </div>
+    </div>,
+    // Step 1: Uploading
+    <div key="upload" className="flex flex-col items-center h-full px-4 pt-3">
+      <p className="text-[10px] font-display font-bold text-gray-900 dark:text-white">Upload Photos</p>
+      <p className="text-[8px] text-gray-400 mb-3">Sarah's Wedding</p>
+      <div className="w-full bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 mb-3">
+        <div className="flex items-center gap-2 mb-2">
+          <Camera className="w-4 h-4 text-primary" />
+          <div>
+            <p className="text-[9px] font-semibold text-gray-900 dark:text-white">Uploading files...</p>
+            <p className="text-[8px] text-gray-400">3 of 5 photos</p>
+          </div>
+        </div>
+        <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-primary to-accent rounded-full" style={{ width: "60%", transition: "width 1s ease" }} />
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-1 w-full">
+        {photos.slice(0, 6).map((src, i) => (
+          <div key={i} className="aspect-square rounded-md overflow-hidden relative">
+            <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+            {i < 3 && <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>}
+          </div>
+        ))}
+      </div>
+    </div>,
+    // Step 2: Gallery
+    <div key="gallery" className="flex flex-col h-full px-3 pt-2">
+      <div className="flex items-center justify-between mb-2">
+        <div>
+          <p className="text-[10px] font-display font-bold text-gray-900 dark:text-white">Sarah's Wedding</p>
+          <p className="text-[8px] text-gray-400">247 photos · 12 guests</p>
+        </div>
+        <div className="flex items-center gap-1 bg-red-50 dark:bg-red-950/30 rounded-full px-2 py-0.5">
+          <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+          <span className="text-[7px] font-bold text-red-500">LIVE</span>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-1 flex-1">
+        {photos.map((src, i) => (
+          <div key={i} className="rounded-md overflow-hidden">
+            <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+          </div>
+        ))}
+        {photos.slice(0, 3).map((src, i) => (
+          <div key={`extra-${i}`} className="rounded-md overflow-hidden">
+            <img src={src} alt="" className="w-full h-full object-cover opacity-80" loading="lazy" />
+          </div>
+        ))}
+      </div>
+      <div className="flex items-center justify-center gap-1.5 py-2">
+        <div className="flex -space-x-1.5">
+          {["bg-blue-400","bg-pink-400","bg-green-400"].map((bg, i) => (
+            <div key={i} className={`w-4 h-4 rounded-full ${bg} border border-white dark:border-gray-900 flex items-center justify-center`}>
+              <span className="text-[6px] text-white font-bold">{["S","J","M"][i]}</span>
+            </div>
+          ))}
+        </div>
+        <span className="text-[8px] text-gray-400">+9 uploading</span>
+      </div>
+    </div>,
+    // Step 3: Done
+    <div key="done" className="flex flex-col items-center justify-center h-full px-5">
+      <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-3">
+        <Check className="w-6 h-6 text-green-500" />
+      </div>
+      <p className="text-[11px] font-display font-bold text-gray-900 dark:text-white mb-0.5">All Done!</p>
+      <p className="text-[8px] text-gray-400 text-center mb-3">247 photos from 12 guests</p>
+      <div className="w-full aspect-[4/3] rounded-lg overflow-hidden shadow-sm mb-2">
+        <img src={photos[3]} alt="" className="w-full h-full object-cover" loading="lazy" />
+      </div>
+      <div className="flex items-center gap-1">
+        {[0,1,2,3,4].map(i => (
+          <div key={i} className={`rounded-full transition-all ${i === 2 ? "w-3 h-1 bg-primary" : "w-1 h-1 bg-gray-300 dark:bg-gray-600"}`} />
+        ))}
+      </div>
+    </div>,
+  ];
+
   return (
-    <div className="relative flex items-center justify-center">
-      {/* Floating badges */}
-      <div className={`absolute -top-2 -right-4 md:right-0 bg-white dark:bg-gray-800 rounded-full px-3 py-1.5 shadow-lg border border-border flex items-center gap-1.5 transition-all duration-500 ${step === 1 ? "scale-110 ring-2 ring-primary/30" : ""}`}>
-        <span className="text-sm">📸</span>
-        <span className="text-xs font-semibold text-foreground">HD Photos</span>
-      </div>
-      <div className={`absolute top-20 -left-8 md:-left-12 bg-white dark:bg-gray-800 rounded-full px-3 py-1.5 shadow-lg border border-border flex items-center gap-1.5 transition-all duration-500 ${step === 0 ? "scale-110 ring-2 ring-primary/30" : ""}`}>
-        <span className="text-sm">🚫</span>
-        <span className="text-xs font-semibold text-foreground">Zero Hassle</span>
-      </div>
-      <div className={`absolute bottom-16 -right-4 md:-right-8 bg-white dark:bg-gray-800 rounded-full px-3 py-1.5 shadow-lg border border-border flex items-center gap-1.5 transition-all duration-500 ${step === 2 ? "scale-110 ring-2 ring-primary/30" : ""}`}>
-        <span className="text-sm">🎬</span>
-        <span className="text-xs font-semibold text-foreground">HD Videos Included</span>
-      </div>
-
-      {/* iPhone frame */}
-      <div className="relative w-[240px] md:w-[280px] h-[480px] md:h-[560px] bg-gray-900 rounded-[3rem] shadow-2xl border-[6px] border-gray-800 overflow-hidden">
-        {/* Notch */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-gray-900 rounded-b-2xl z-30" />
-        {/* Status bar */}
-        <div className="h-10 bg-white dark:bg-gray-900 flex items-end justify-between px-6 pb-1 z-20 relative">
-          <span className="text-[9px] font-semibold text-gray-900 dark:text-white">9:41</span>
-          <div className="flex items-center gap-0.5">
-            <div className="w-3 h-2 border border-gray-900 dark:border-white rounded-[1px]" />
+    <div className="relative w-[260px] mx-auto" style={{ perspective: "1000px" }}>
+      {/* iPhone with slight perspective tilt */}
+      <div
+        className="relative bg-black rounded-[2.8rem] p-[10px] shadow-[0_25px_60px_-10px_rgba(0,0,0,0.3)]"
+        style={{ transform: "rotateY(-5deg) rotateX(2deg)" }}
+      >
+        {/* Inner screen bezel */}
+        <div className="relative bg-white dark:bg-gray-950 rounded-[2.2rem] overflow-hidden">
+          {/* Dynamic Island */}
+          <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-20 h-5 bg-black rounded-full z-20" />
+          {/* Status bar */}
+          <div className="relative z-10 flex items-center justify-between px-7 pt-3 pb-0">
+            <span className="text-[9px] font-semibold text-gray-900 dark:text-white">9:41</span>
+            <div className="flex items-center gap-1">
+              <svg width="14" height="10" viewBox="0 0 14 10" className="text-gray-900 dark:text-white"><path d="M0 6h2v4H0zM4 4h2v6H4zM8 2h2v8H8zM12 0h2v10h-2z" fill="currentColor"/></svg>
+            </div>
+          </div>
+          {/* Screen content with fade transition */}
+          <div className="relative h-[430px] overflow-hidden">
+            {screens.map((screen, i) => (
+              <div
+                key={i}
+                className="absolute inset-0 transition-opacity duration-700 ease-in-out"
+                style={{ opacity: step === i ? 1 : 0, pointerEvents: step === i ? "auto" : "none" }}
+              >
+                {screen}
+              </div>
+            ))}
+          </div>
+          {/* Home indicator */}
+          <div className="flex justify-center pb-2 pt-1">
+            <div className="w-28 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
           </div>
         </div>
-
-        {/* Screen content — animated steps */}
-        <div className="h-[calc(100%-40px)] bg-white dark:bg-gray-950 relative overflow-hidden">
-
-          {/* Step 0: QR Code Scan */}
-          <div className={`absolute inset-0 flex flex-col items-center justify-center p-5 transition-all duration-700 ${step === 0 ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"}`}>
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
-              <QrCode className="w-5 h-5 text-primary" />
-            </div>
-            <p className="text-[11px] font-display font-bold text-gray-900 dark:text-white mb-1">Sarah's Wedding</p>
-            <p className="text-[9px] text-gray-500 mb-4">Scan to share your photos</p>
-            {/* QR code visual */}
-            <div className="w-28 h-28 bg-gray-900 dark:bg-white rounded-xl p-2.5 mb-4">
-              <div className="w-full h-full grid grid-cols-7 gap-[2px]">
-                {Array.from({ length: 49 }).map((_, i) => (
-                  <div key={i} className={`rounded-[1px] ${[0,1,2,4,5,6,7,13,14,20,21,27,28,34,35,41,42,43,44,46,47,48,8,10,12,36,38,40,16,18,22,24,26,30,32].includes(i) ? "bg-white dark:bg-gray-900" : "bg-transparent"}`} />
-                ))}
-              </div>
-            </div>
-            <div className="flex items-center gap-1 bg-green-50 dark:bg-green-900/20 rounded-full px-3 py-1">
-              <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-[9px] font-semibold text-green-600 dark:text-green-400">Ready to scan</span>
-            </div>
-          </div>
-
-          {/* Step 1: Uploading Photos */}
-          <div className={`absolute inset-0 flex flex-col items-center p-5 transition-all duration-700 ${step === 1 ? "opacity-100 translate-x-0" : step > 1 ? "opacity-0 -translate-x-full" : "opacity-0 translate-x-full"}`}>
-            <p className="text-[11px] font-display font-bold text-gray-900 dark:text-white mb-1 mt-2">Upload Photos</p>
-            <p className="text-[9px] text-gray-500 mb-4">Sarah's Wedding</p>
-            {/* Upload progress */}
-            <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-2xl p-4 mb-3">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Camera className="w-4 h-4 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-[10px] font-semibold text-gray-900 dark:text-white">Your files are uploading</p>
-                  <p className="text-[9px] text-gray-500">3 of 5 photos</p>
-                </div>
-              </div>
-              <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-primary to-accent rounded-full animate-pulse" style={{ width: "60%" }} />
-              </div>
-              <p className="text-[9px] text-gray-500 mt-2 text-center">2.4 / 5.91MB uploaded</p>
-            </div>
-            {/* Preview grid */}
-            <div className="grid grid-cols-3 gap-1.5 w-full">
-              {galleryPhotos.slice(0, 3).map((src, i) => (
-                <div key={i} className="aspect-square rounded-lg overflow-hidden relative">
-                  <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
-                  {i < 2 && <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center"><Check className="w-4 h-4 text-white" /></div>}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Step 2: Gallery View */}
-          <div className={`absolute inset-0 flex flex-col p-4 transition-all duration-700 ${step === 2 ? "opacity-100 translate-x-0" : step > 2 ? "opacity-0 -translate-x-full" : "opacity-0 translate-x-full"}`}>
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <p className="text-[11px] font-display font-bold text-gray-900 dark:text-white">Sarah's Wedding</p>
-                <p className="text-[9px] text-gray-500">247 photos · 12 guests</p>
-              </div>
-              <div className="flex items-center gap-1 bg-primary/10 rounded-full px-2 py-0.5">
-                <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
-                <span className="text-[8px] font-semibold text-primary">LIVE</span>
-              </div>
-            </div>
-            {/* Photo grid filling up */}
-            <div className="grid grid-cols-3 gap-1 flex-1">
-              {galleryPhotos.map((src, i) => (
-                <div key={i} className="rounded-lg overflow-hidden" style={{ animationDelay: `${i * 300}ms` }}>
-                  <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
-                </div>
-              ))}
-            </div>
-            <div className="flex items-center justify-center gap-2 mt-3">
-              <div className="flex -space-x-2">
-                {["bg-blue-400", "bg-pink-400", "bg-green-400", "bg-orange-400"].map((bg, i) => (
-                  <div key={i} className={`w-5 h-5 rounded-full ${bg} border-2 border-white dark:border-gray-900 flex items-center justify-center`}>
-                    <span className="text-[7px] text-white font-bold">{["S","J","M","A"][i]}</span>
-                  </div>
-                ))}
-              </div>
-              <span className="text-[9px] text-gray-500">+8 guests uploading</span>
-            </div>
-          </div>
-
-          {/* Step 3: Success / Slideshow */}
-          <div className={`absolute inset-0 flex flex-col items-center justify-center p-5 transition-all duration-700 ${step === 3 ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"}`}>
-            <div className="w-14 h-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
-              <Check className="w-7 h-7 text-green-500" />
-            </div>
-            <p className="text-[12px] font-display font-bold text-gray-900 dark:text-white mb-1">All Done!</p>
-            <p className="text-[9px] text-gray-500 text-center mb-4">247 photos collected from 12 guests</p>
-            {/* Mini slideshow preview */}
-            <div className="w-full aspect-video rounded-xl overflow-hidden shadow-md mb-3">
-              <img src={galleryPhotos[step % galleryPhotos.length]} alt="" className="w-full h-full object-cover" loading="lazy" />
-            </div>
-            <div className="flex items-center gap-1.5">
-              {[0,1,2,3,4].map(i => (
-                <div key={i} className={`rounded-full transition-all ${i === 2 ? "w-4 h-1.5 bg-primary" : "w-1.5 h-1.5 bg-gray-300 dark:bg-gray-600"}`} />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Home indicator */}
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-24 h-1 bg-gray-600 rounded-full z-30" />
       </div>
 
-      {/* Step indicators outside phone */}
-      <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2">
-        {["Scan QR", "Upload", "Gallery", "Done!"].map((label, i) => (
+      {/* Step dots */}
+      <div className="flex items-center justify-center gap-1.5 mt-5">
+        {[0,1,2,3].map(i => (
           <button
             key={i}
             onClick={() => setStep(i)}
-            className={`text-[10px] px-2 py-1 rounded-full transition-all ${step === i ? "bg-primary text-white font-semibold" : "bg-muted text-muted-foreground"}`}
-          >
-            {label}
-          </button>
+            className={`rounded-full transition-all duration-300 ${step === i ? "w-6 h-2 bg-primary" : "w-2 h-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400"}`}
+            data-testid={`phone-step-${i}`}
+          />
         ))}
+      </div>
+
+      {/* Floating label badges */}
+      <div className="absolute -top-3 -right-16 bg-white dark:bg-gray-800 rounded-lg px-3 py-1.5 shadow-md border border-border/50 flex items-center gap-1.5">
+        <span className="text-xs">📸</span>
+        <span className="text-[11px] font-semibold text-foreground">HD Quality</span>
+      </div>
+      <div className="absolute top-1/3 -left-20 bg-white dark:bg-gray-800 rounded-lg px-3 py-1.5 shadow-md border border-border/50 flex items-center gap-1.5">
+        <span className="text-xs">🔓</span>
+        <span className="text-[11px] font-semibold text-foreground">No App</span>
+      </div>
+      <div className="absolute bottom-20 -right-20 bg-white dark:bg-gray-800 rounded-lg px-3 py-1.5 shadow-md border border-border/50 flex items-center gap-1.5">
+        <span className="text-xs">🎬</span>
+        <span className="text-[11px] font-semibold text-foreground">Videos Too</span>
       </div>
     </div>
   );
@@ -656,7 +664,7 @@ export default function LandingPage() {
           </div>
 
           {/* Animated phone mockup */}
-          <div className="hidden lg:flex items-center justify-center pb-12">
+          <div className="hidden lg:flex items-center justify-center py-8">
             <HeroPhoneMockup />
           </div>
         </div>
