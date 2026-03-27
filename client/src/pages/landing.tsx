@@ -83,13 +83,17 @@ function HeroPhoneMockup() {
     return () => clearInterval(timer);
   }, []);
 
+  // Fresh wedding/event photos — different from the rest of the page
   const photos = [
-    "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=200&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=200&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1543807535-eceef0bc6599?w=200&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=200&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1545232979-8bf68ee9b1af?w=200&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=200&h=200&fit=crop",
+    "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=200&h=200&fit=crop",
+    "https://images.unsplash.com/photo-1519741497674-611481863552?w=200&h=200&fit=crop",
+    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&h=200&fit=crop",
+    "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=200&h=200&fit=crop",
+    "https://images.unsplash.com/photo-1504196606672-aef5c9cefc92?w=200&h=200&fit=crop",
+    "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=200&h=200&fit=crop",
+    "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=200&h=200&fit=crop",
+    "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=200&h=200&fit=crop",
+    "https://images.unsplash.com/photo-1507504031003-b417219a0fde?w=200&h=200&fit=crop",
   ];
 
   // Screen content for each step
@@ -101,12 +105,39 @@ function HeroPhoneMockup() {
       </div>
       <p className="text-[10px] font-display font-bold text-gray-900 dark:text-white">Sarah's Wedding</p>
       <p className="text-[8px] text-gray-400 mb-3">Scan to share your photos</p>
-      <div className="w-24 h-24 bg-gray-900 dark:bg-white rounded-lg p-2 mb-3">
-        <div className="w-full h-full grid grid-cols-7 gap-[1.5px]">
-          {Array.from({ length: 49 }).map((_, i) => (
-            <div key={i} className={`rounded-[0.5px] ${[0,1,2,4,5,6,7,13,14,20,21,27,28,34,35,41,42,43,44,46,47,48,8,10,12,36,38,40,16,18,22,24,26,30,32].includes(i) ? "bg-white dark:bg-gray-900" : "bg-transparent"}`} />
-          ))}
-        </div>
+      <div className="w-24 h-24 mb-3">
+        <svg viewBox="0 0 100 100" className="w-full h-full">
+          {/* QR code corners (finder patterns) */}
+          <rect x="4" y="4" width="24" height="24" rx="3" fill="#1a1a2e" />
+          <rect x="7" y="7" width="18" height="18" rx="2" fill="white" />
+          <rect x="10" y="10" width="12" height="12" rx="1" fill="#1a1a2e" />
+          <rect x="72" y="4" width="24" height="24" rx="3" fill="#1a1a2e" />
+          <rect x="75" y="7" width="18" height="18" rx="2" fill="white" />
+          <rect x="78" y="10" width="12" height="12" rx="1" fill="#1a1a2e" />
+          <rect x="4" y="72" width="24" height="24" rx="3" fill="#1a1a2e" />
+          <rect x="7" y="75" width="18" height="18" rx="2" fill="white" />
+          <rect x="10" y="78" width="12" height="12" rx="1" fill="#1a1a2e" />
+          {/* Data modules — deterministic pattern */}
+          {[[32,4],[36,8],[40,4],[44,12],[48,8],[52,4],[56,12],[60,8],[64,4],[68,12],
+            [32,36],[36,32],[40,40],[44,36],[48,44],[52,40],[56,36],[60,44],[64,40],[68,36],
+            [32,52],[36,56],[40,60],[44,52],[48,56],[52,64],[56,52],[60,56],[64,60],[68,52],
+            [32,68],[36,76],[40,84],[48,68],[52,76],[60,68],[64,84],[68,76],
+            [4,32],[8,36],[12,40],[16,44],[20,36],[4,48],[12,52],[20,48],
+            [4,60],[8,64],[16,60],[20,64],[80,36],[84,40],[88,44],[92,36],
+            [80,52],[84,48],[88,56],[92,60],[80,64],[88,68],[92,64],
+            [36,84],[40,92],[48,84],[52,88],[56,92],[60,84],[64,88]].map(([x,y], i) =>
+            <rect key={`d${i}`} x={x} y={y} width="3" height="3" rx="0.5" fill="#1a1a2e" />
+          )}
+          {/* Alignment pattern */}
+          <rect x="72" y="72" width="14" height="14" rx="2" fill="#1a1a2e" />
+          <rect x="74" y="74" width="10" height="10" rx="1.5" fill="white" />
+          <rect x="77" y="77" width="4" height="4" rx="1" fill="#1a1a2e" />
+          {/* LensParty logo center */}
+          <circle cx="50" cy="50" r="8" fill="white" />
+          <circle cx="50" cy="50" r="6" fill="#7C3AED" opacity="0.15" />
+          <circle cx="50" cy="50" r="4" fill="#7C3AED" />
+          <circle cx="50" cy="50" r="2" fill="white" />
+        </svg>
       </div>
       <div className="flex items-center gap-1 bg-green-50 dark:bg-green-950/30 rounded-full px-2.5 py-0.5">
         <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
