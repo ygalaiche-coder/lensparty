@@ -74,33 +74,177 @@ function LensLogo({ size = 28 }: { size?: number }) {
   );
 }
 
-// Hero photo collage
-const heroPhotos = [
-  { src: "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=400&h=300&fit=crop", alt: "Wedding guests taking selfie", rotate: "-3deg", col: "col-span-1", h: "h-40" },
-  { src: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&h=300&fit=crop", alt: "Friends taking group selfie", rotate: "2deg", col: "col-span-1", h: "h-52" },
-  { src: "https://images.unsplash.com/photo-1543807535-eceef0bc6599?w=400&h=300&fit=crop", alt: "Friends laughing together", rotate: "-1deg", col: "col-span-1", h: "h-44" },
-  { src: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&h=300&fit=crop", alt: "Friends celebrating with drinks", rotate: "3deg", col: "col-span-1", h: "h-48" },
-  { src: "https://images.unsplash.com/photo-1545232979-8bf68ee9b1af?w=400&h=300&fit=crop", alt: "Happy couple first dance", rotate: "-2deg", col: "col-span-1", h: "h-36" },
-  { src: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=400&h=300&fit=crop", alt: "Happy crowd at event", rotate: "1deg", col: "col-span-1", h: "h-52" },
-];
+// Animated iPhone mockup showing LensParty flow
+function HeroPhoneMockup() {
+  const [step, setStep] = useState(0);
+  const totalSteps = 4;
 
-function HeroCollage() {
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setStep(s => (s + 1) % totalSteps);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const galleryPhotos = [
+    "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=200&h=200&fit=crop",
+    "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=200&h=200&fit=crop",
+    "https://images.unsplash.com/photo-1543807535-eceef0bc6599?w=200&h=200&fit=crop",
+    "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=200&h=200&fit=crop",
+    "https://images.unsplash.com/photo-1545232979-8bf68ee9b1af?w=200&h=200&fit=crop",
+    "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=200&h=200&fit=crop",
+  ];
+
   return (
-    <div className="grid grid-cols-3 gap-3 max-w-lg mx-auto">
-      {heroPhotos.map((photo, i) => (
-        <div
-          key={i}
-          className={`${photo.col} ${photo.h} rounded-2xl overflow-hidden shadow-xl border-2 border-white/60 dark:border-white/10 hover:scale-105 transition-transform duration-300`}
-          style={{ transform: `rotate(${photo.rotate})` }}
-        >
-          <img
-            src={photo.src}
-            alt={photo.alt}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
+    <div className="relative flex items-center justify-center">
+      {/* Floating badges */}
+      <div className={`absolute -top-2 -right-4 md:right-0 bg-white dark:bg-gray-800 rounded-full px-3 py-1.5 shadow-lg border border-border flex items-center gap-1.5 transition-all duration-500 ${step === 1 ? "scale-110 ring-2 ring-primary/30" : ""}`}>
+        <span className="text-sm">📸</span>
+        <span className="text-xs font-semibold text-foreground">HD Photos</span>
+      </div>
+      <div className={`absolute top-20 -left-8 md:-left-12 bg-white dark:bg-gray-800 rounded-full px-3 py-1.5 shadow-lg border border-border flex items-center gap-1.5 transition-all duration-500 ${step === 0 ? "scale-110 ring-2 ring-primary/30" : ""}`}>
+        <span className="text-sm">🚫</span>
+        <span className="text-xs font-semibold text-foreground">Zero Hassle</span>
+      </div>
+      <div className={`absolute bottom-16 -right-4 md:-right-8 bg-white dark:bg-gray-800 rounded-full px-3 py-1.5 shadow-lg border border-border flex items-center gap-1.5 transition-all duration-500 ${step === 2 ? "scale-110 ring-2 ring-primary/30" : ""}`}>
+        <span className="text-sm">🎬</span>
+        <span className="text-xs font-semibold text-foreground">HD Videos Included</span>
+      </div>
+
+      {/* iPhone frame */}
+      <div className="relative w-[240px] md:w-[280px] h-[480px] md:h-[560px] bg-gray-900 rounded-[3rem] shadow-2xl border-[6px] border-gray-800 overflow-hidden">
+        {/* Notch */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-gray-900 rounded-b-2xl z-30" />
+        {/* Status bar */}
+        <div className="h-10 bg-white dark:bg-gray-900 flex items-end justify-between px-6 pb-1 z-20 relative">
+          <span className="text-[9px] font-semibold text-gray-900 dark:text-white">9:41</span>
+          <div className="flex items-center gap-0.5">
+            <div className="w-3 h-2 border border-gray-900 dark:border-white rounded-[1px]" />
+          </div>
         </div>
-      ))}
+
+        {/* Screen content — animated steps */}
+        <div className="h-[calc(100%-40px)] bg-white dark:bg-gray-950 relative overflow-hidden">
+
+          {/* Step 0: QR Code Scan */}
+          <div className={`absolute inset-0 flex flex-col items-center justify-center p-5 transition-all duration-700 ${step === 0 ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"}`}>
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
+              <QrCode className="w-5 h-5 text-primary" />
+            </div>
+            <p className="text-[11px] font-display font-bold text-gray-900 dark:text-white mb-1">Sarah's Wedding</p>
+            <p className="text-[9px] text-gray-500 mb-4">Scan to share your photos</p>
+            {/* QR code visual */}
+            <div className="w-28 h-28 bg-gray-900 dark:bg-white rounded-xl p-2.5 mb-4">
+              <div className="w-full h-full grid grid-cols-7 gap-[2px]">
+                {Array.from({ length: 49 }).map((_, i) => (
+                  <div key={i} className={`rounded-[1px] ${[0,1,2,4,5,6,7,13,14,20,21,27,28,34,35,41,42,43,44,46,47,48,8,10,12,36,38,40,16,18,22,24,26,30,32].includes(i) ? "bg-white dark:bg-gray-900" : "bg-transparent"}`} />
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center gap-1 bg-green-50 dark:bg-green-900/20 rounded-full px-3 py-1">
+              <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+              <span className="text-[9px] font-semibold text-green-600 dark:text-green-400">Ready to scan</span>
+            </div>
+          </div>
+
+          {/* Step 1: Uploading Photos */}
+          <div className={`absolute inset-0 flex flex-col items-center p-5 transition-all duration-700 ${step === 1 ? "opacity-100 translate-x-0" : step > 1 ? "opacity-0 -translate-x-full" : "opacity-0 translate-x-full"}`}>
+            <p className="text-[11px] font-display font-bold text-gray-900 dark:text-white mb-1 mt-2">Upload Photos</p>
+            <p className="text-[9px] text-gray-500 mb-4">Sarah's Wedding</p>
+            {/* Upload progress */}
+            <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-2xl p-4 mb-3">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Camera className="w-4 h-4 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-[10px] font-semibold text-gray-900 dark:text-white">Your files are uploading</p>
+                  <p className="text-[9px] text-gray-500">3 of 5 photos</p>
+                </div>
+              </div>
+              <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-primary to-accent rounded-full animate-pulse" style={{ width: "60%" }} />
+              </div>
+              <p className="text-[9px] text-gray-500 mt-2 text-center">2.4 / 5.91MB uploaded</p>
+            </div>
+            {/* Preview grid */}
+            <div className="grid grid-cols-3 gap-1.5 w-full">
+              {galleryPhotos.slice(0, 3).map((src, i) => (
+                <div key={i} className="aspect-square rounded-lg overflow-hidden relative">
+                  <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+                  {i < 2 && <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center"><Check className="w-4 h-4 text-white" /></div>}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Step 2: Gallery View */}
+          <div className={`absolute inset-0 flex flex-col p-4 transition-all duration-700 ${step === 2 ? "opacity-100 translate-x-0" : step > 2 ? "opacity-0 -translate-x-full" : "opacity-0 translate-x-full"}`}>
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <p className="text-[11px] font-display font-bold text-gray-900 dark:text-white">Sarah's Wedding</p>
+                <p className="text-[9px] text-gray-500">247 photos · 12 guests</p>
+              </div>
+              <div className="flex items-center gap-1 bg-primary/10 rounded-full px-2 py-0.5">
+                <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+                <span className="text-[8px] font-semibold text-primary">LIVE</span>
+              </div>
+            </div>
+            {/* Photo grid filling up */}
+            <div className="grid grid-cols-3 gap-1 flex-1">
+              {galleryPhotos.map((src, i) => (
+                <div key={i} className="rounded-lg overflow-hidden" style={{ animationDelay: `${i * 300}ms` }}>
+                  <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center justify-center gap-2 mt-3">
+              <div className="flex -space-x-2">
+                {["bg-blue-400", "bg-pink-400", "bg-green-400", "bg-orange-400"].map((bg, i) => (
+                  <div key={i} className={`w-5 h-5 rounded-full ${bg} border-2 border-white dark:border-gray-900 flex items-center justify-center`}>
+                    <span className="text-[7px] text-white font-bold">{["S","J","M","A"][i]}</span>
+                  </div>
+                ))}
+              </div>
+              <span className="text-[9px] text-gray-500">+8 guests uploading</span>
+            </div>
+          </div>
+
+          {/* Step 3: Success / Slideshow */}
+          <div className={`absolute inset-0 flex flex-col items-center justify-center p-5 transition-all duration-700 ${step === 3 ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"}`}>
+            <div className="w-14 h-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
+              <Check className="w-7 h-7 text-green-500" />
+            </div>
+            <p className="text-[12px] font-display font-bold text-gray-900 dark:text-white mb-1">All Done!</p>
+            <p className="text-[9px] text-gray-500 text-center mb-4">247 photos collected from 12 guests</p>
+            {/* Mini slideshow preview */}
+            <div className="w-full aspect-video rounded-xl overflow-hidden shadow-md mb-3">
+              <img src={galleryPhotos[step % galleryPhotos.length]} alt="" className="w-full h-full object-cover" loading="lazy" />
+            </div>
+            <div className="flex items-center gap-1.5">
+              {[0,1,2,3,4].map(i => (
+                <div key={i} className={`rounded-full transition-all ${i === 2 ? "w-4 h-1.5 bg-primary" : "w-1.5 h-1.5 bg-gray-300 dark:bg-gray-600"}`} />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Home indicator */}
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-24 h-1 bg-gray-600 rounded-full z-30" />
+      </div>
+
+      {/* Step indicators outside phone */}
+      <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2">
+        {["Scan QR", "Upload", "Gallery", "Done!"].map((label, i) => (
+          <button
+            key={i}
+            onClick={() => setStep(i)}
+            className={`text-[10px] px-2 py-1 rounded-full transition-all ${step === i ? "bg-primary text-white font-semibold" : "bg-muted text-muted-foreground"}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -511,9 +655,9 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Photo collage */}
-          <div className="float-anim">
-            <HeroCollage />
+          {/* Animated phone mockup */}
+          <div className="hidden lg:flex items-center justify-center pb-12">
+            <HeroPhoneMockup />
           </div>
         </div>
       </section>
