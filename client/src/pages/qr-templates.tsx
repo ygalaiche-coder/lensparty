@@ -393,7 +393,7 @@ export default function QRTemplatesPage() {
 
       {/* Header */}
       <header className="h-16 border-b border-border flex items-center px-6 gap-4 bg-background/80 backdrop-blur-md sticky top-0 z-50 no-print">
-        <Link href={`/event/${eventId}`}>
+        <Link href="/">
           <button className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors" data-testid="button-back-dashboard">
             <ArrowLeft className="w-4 h-4" />
             <LensLogo size={20} />

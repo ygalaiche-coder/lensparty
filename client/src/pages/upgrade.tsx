@@ -92,7 +92,7 @@ export default function UpgradePage() {
 
       {/* Header */}
       <header className="h-16 border-b border-border flex items-center px-6 gap-3">
-        <Link href={`/event/${eventId}`}>
+        <Link href="/">
           <button className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors" data-testid="button-back-event">
             <ArrowLeft className="w-4 h-4" />
             <LensLogo size={20} />

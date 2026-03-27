@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { useParams } from "wouter";
+import { useParams, Link } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -220,10 +220,12 @@ export default function GuestUploadPage() {
           <div className="absolute bottom-2 right-12 w-8 h-8 rounded-full bg-white" />
         </div>
         <div className="relative">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <LensLogo size={24} />
-            <span className="font-display font-bold text-white/80 text-sm">LensParty</span>
-          </div>
+          <Link href="/">
+            <div className="flex items-center justify-center gap-2 mb-3 cursor-pointer hover:opacity-80 transition-opacity">
+              <LensLogo size={24} />
+              <span className="font-display font-bold text-white/80 text-sm">LensParty</span>
+            </div>
+          </Link>
           <h1 className="font-display font-bold text-xl text-white mb-1" data-testid="text-event-name">{event.name}</h1>
           {event.description && (
             <p className="text-white/80 text-sm max-w-xs mx-auto">{event.description}</p>
