@@ -85,15 +85,15 @@ function HeroPhoneMockup() {
 
   // Fresh wedding/event photos — different from the rest of the page
   const photos = [
-    "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=200&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1519741497674-611481863552?w=200&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=200&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1504196606672-aef5c9cefc92?w=200&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=200&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=200&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=200&h=200&fit=crop",
-    "https://images.unsplash.com/photo-1507504031003-b417219a0fde?w=200&h=200&fit=crop",
+    "/images/wedding/selfie-01.jpg",
+    "/images/wedding/selfie-03.jpg",
+    "/images/wedding/selfie-05.jpg",
+    "/images/wedding/selfie-07.jpg",
+    "/images/wedding/selfie-04.jpg",
+    "/images/wedding/selfie-09.jpg",
+    "/images/wedding/selfie-11.jpg",
+    "/images/wedding/selfie-06.jpg",
+    "/images/wedding/selfie-02.jpg",
   ];
 
   // Screen content for each step
@@ -458,7 +458,7 @@ const testimonials = [
     stars: 5,
     initials: "SM",
     color: "bg-purple-500",
-    photo: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=300&h=200&fit=crop",
+    photo: "/images/wedding/selfie-08.jpg",
   },
   {
     quote: "Set up in 2 minutes. The live slideshow at the reception had everyone cheering when new photos appeared.",
@@ -467,7 +467,7 @@ const testimonials = [
     stars: 5,
     initials: "MK",
     color: "bg-pink-500",
-    photo: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?w=300&h=200&fit=crop",
+    photo: "/images/wedding/selfie-12.jpg",
   },
   {
     quote: "Great concept and mostly works perfectly. Wish there were more gallery themes, but for the price you can't beat it.",
@@ -494,7 +494,7 @@ const testimonials = [
     stars: 5,
     initials: "JT",
     color: "bg-emerald-500",
-    photo: "https://images.unsplash.com/photo-1496024840928-4c417adf211d?w=300&h=200&fit=crop",
+    photo: "/images/wedding/selfie-09.jpg",
   },
   {
     quote: "The AI face search found every single photo of my parents at the anniversary party. In seconds.",
@@ -734,22 +734,22 @@ export default function LandingPage() {
       <section className="py-10 overflow-hidden">
         <div className="flex animate-marquee" style={{ width: "max-content" }}>
           {[
-            { src: "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=300&h=200&fit=crop", alt: "Wedding guests taking selfie" },
-            { src: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=300&h=200&fit=crop", alt: "Friends taking group selfie" },
-            { src: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=300&h=200&fit=crop", alt: "Friends celebrating with drinks" },
-            { src: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=300&h=200&fit=crop", alt: "Wedding celebration moment" },
-            { src: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?w=300&h=200&fit=crop", alt: "Friends hugging at party" },
-            { src: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=300&h=200&fit=crop", alt: "Happy crowd at event" },
-            { src: "https://images.unsplash.com/photo-1496024840928-4c417adf211d?w=300&h=200&fit=crop", alt: "Friends at sunset celebration" },
-            { src: "https://images.unsplash.com/photo-1543807535-eceef0bc6599?w=300&h=200&fit=crop", alt: "Friends laughing together" },
-            { src: "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=300&h=200&fit=crop", alt: "Wedding guests taking selfie" },
-            { src: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=300&h=200&fit=crop", alt: "Friends taking group selfie" },
-            { src: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=300&h=200&fit=crop", alt: "Friends celebrating with drinks" },
-            { src: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=300&h=200&fit=crop", alt: "Wedding celebration moment" },
-            { src: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?w=300&h=200&fit=crop", alt: "Friends hugging at party" },
-            { src: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=300&h=200&fit=crop", alt: "Happy crowd at event" },
-            { src: "https://images.unsplash.com/photo-1496024840928-4c417adf211d?w=300&h=200&fit=crop", alt: "Friends at sunset celebration" },
-            { src: "https://images.unsplash.com/photo-1543807535-eceef0bc6599?w=300&h=200&fit=crop", alt: "Friends laughing together" },
+            { src: "/images/wedding/selfie-06.jpg", alt: "Wedding guests taking selfie" },
+            { src: "/images/wedding/selfie-06.jpg", alt: "Friends taking group selfie" },
+            { src: "/images/wedding/selfie-06.jpg", alt: "Friends celebrating with drinks" },
+            { src: "/images/wedding/selfie-08.jpg", alt: "Wedding celebration moment" },
+            { src: "/images/wedding/selfie-12.jpg", alt: "Friends hugging at party" },
+            { src: "/images/wedding/selfie-06.jpg", alt: "Happy crowd at event" },
+            { src: "/images/wedding/selfie-09.jpg", alt: "Friends at sunset celebration" },
+            { src: "/images/wedding/selfie-06.jpg", alt: "Friends laughing together" },
+            { src: "/images/wedding/selfie-06.jpg", alt: "Wedding guests taking selfie" },
+            { src: "/images/wedding/selfie-06.jpg", alt: "Friends taking group selfie" },
+            { src: "/images/wedding/selfie-06.jpg", alt: "Friends celebrating with drinks" },
+            { src: "/images/wedding/selfie-08.jpg", alt: "Wedding celebration moment" },
+            { src: "/images/wedding/selfie-12.jpg", alt: "Friends hugging at party" },
+            { src: "/images/wedding/selfie-06.jpg", alt: "Happy crowd at event" },
+            { src: "/images/wedding/selfie-09.jpg", alt: "Friends at sunset celebration" },
+            { src: "/images/wedding/selfie-06.jpg", alt: "Friends laughing together" },
           ].map((photo, i) => (
             <div key={i} className="flex-shrink-0 w-56 h-36 mx-2 rounded-xl overflow-hidden shadow-md">
               <img src={photo.src} alt={photo.alt} className="w-full h-full object-cover" loading="lazy" />
