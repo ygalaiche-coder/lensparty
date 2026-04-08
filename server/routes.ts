@@ -1,6 +1,6 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage, pool } from "./storage";
 import { insertEventSchema, insertPhotoSchema, insertGuestbookSchema } from "@shared/schema";
 import QRCode from "qrcode";
 import { isCloudStorageEnabled, uploadToR2, deleteFromR2 } from "./r2";
@@ -84,7 +84,7 @@ export async function registerRoutes(
         sameSite: "lax",
         maxAge: COOKIE_MAX_AGE,
       });
-      res.json({ id: user.id, email: user.email, name: user.name });
+      res.json({ id: user.id, email: user.email, name: user.name, isAdmin: user.isAdmin });
     } catch (e: any) {
       res.status(500).json({ error: e.message });
     }
@@ -111,7 +111,7 @@ export async function registerRoutes(
         sameSite: "lax",
         maxAge: COOKIE_MAX_AGE,
       });
-      res.json({ id: user.id, email: user.email, name: user.name });
+      res.json({ id: user.id, email: user.email, name: user.name, isAdmin: user.isAdmin });
     } catch (e: any) {
       res.status(500).json({ error: e.message });
     }
@@ -131,7 +131,7 @@ export async function registerRoutes(
       return res.status(401).json({ error: "User not found" });
     }
     const userEvents = await storage.getEventsByUserId(user.id);
-    res.json({ id: user.id, email: user.email, name: user.name, eventsCount: userEvents.length });
+    res.json({ id: user.id, email: user.email, name: user.name, eventsCount: userEvents.length, isAdmin: user.isAdmin });
   });
 
   // --- My events route ---
@@ -371,6 +371,317 @@ export async function registerRoutes(
         userId: null,
       });
       res.json(event);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // --- Admin routes ---
+
+  const ADMIN_SECRET = process.env.ADMIN_SECRET || "lensparty-admin-2026";
+
+  async function requireAdmin(req: Request, res: Response, next: NextFunction) {
+    const token = req.cookies?.[COOKIE_NAME];
+    if (!token) return res.status(401).json({ error: "Not authenticated" });
+    try {
+      const payload = jwt.verify(token, JWT_SECRET) as { userId: number };
+      const user = await storage.getUserById(payload.userId);
+      if (!user) return res.status(401).json({ error: "User not found" });
+      if (user.isAdmin !== 1) return res.status(403).json({ error: "Admin access required" });
+      req.userId = user.id;
+      next();
+    } catch (_e) {
+      return res.status(401).json({ error: "Invalid token" });
+    }
+  }
+
+  // Bootstrap first admin (only works when zero admins exist)
+  app.post("/api/admin/bootstrap", async (req, res) => {
+    try {
+      const { email, secret } = req.body;
+      if (!email || !secret) return res.status(400).json({ error: "Email and secret are required" });
+      if (secret !== ADMIN_SECRET) return res.status(403).json({ error: "Invalid secret" });
+      const { rows: admins } = await pool.query("SELECT id FROM users WHERE is_admin = 1 LIMIT 1");
+      if (admins.length > 0) return res.status(403).json({ error: "Admin already exists. Use /api/admin/promote instead." });
+      const user = await storage.getUserByEmail(email.toLowerCase().trim());
+      if (!user) return res.status(404).json({ error: "User not found" });
+      await pool.query("UPDATE users SET is_admin = 1 WHERE id = $1", [user.id]);
+      res.json({ id: user.id, email: user.email, name: user.name, isAdmin: 1 });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // Admin stats overview
+  app.get("/api/admin/stats", requireAdmin, async (_req, res) => {
+    try {
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+      const [usersR, eventsR, photosR, paidR, demoR, newUsersR, newEventsR] = await Promise.all([
+        pool.query("SELECT COUNT(*) as count FROM users"),
+        pool.query("SELECT COUNT(*) as count FROM events WHERE is_demo = 0"),
+        pool.query("SELECT COUNT(*) as count FROM photos"),
+        pool.query("SELECT COUNT(*) as count, COALESCE(SUM(CASE WHEN plan='pro' THEN 19.99 WHEN plan='business' THEN 39.99 ELSE 0 END), 0) as revenue FROM events WHERE stripe_payment_id IS NOT NULL"),
+        pool.query("SELECT COUNT(*) as count FROM events WHERE is_demo = 1"),
+        pool.query("SELECT COUNT(*) as count FROM users WHERE created_at >= $1", [monthStart]),
+        pool.query("SELECT COUNT(*) as count FROM events WHERE created_at >= $1 AND is_demo = 0", [monthStart]),
+      ]);
+
+      const paidCount = parseInt(paidR.rows[0].count);
+      const totalRevenue = parseFloat(paidR.rows[0].revenue);
+      const totalEvents = parseInt(eventsR.rows[0].count);
+
+      // Revenue this month
+      const revenueMonthR = await pool.query(
+        "SELECT COALESCE(SUM(CASE WHEN plan='pro' THEN 19.99 WHEN plan='business' THEN 39.99 ELSE 0 END), 0) as revenue FROM events WHERE stripe_payment_id IS NOT NULL AND paid_at >= $1",
+        [monthStart]
+      );
+
+      res.json({
+        totalUsers: parseInt(usersR.rows[0].count),
+        totalEvents,
+        totalPhotos: parseInt(photosR.rows[0].count),
+        totalRevenue: Math.round(totalRevenue * 100) / 100,
+        paidEvents: paidCount,
+        freeEvents: totalEvents - paidCount,
+        demoEvents: parseInt(demoR.rows[0].count),
+        newUsersThisMonth: parseInt(newUsersR.rows[0].count),
+        newEventsThisMonth: parseInt(newEventsR.rows[0].count),
+        revenueThisMonth: Math.round(parseFloat(revenueMonthR.rows[0].revenue) * 100) / 100,
+      });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // Admin users list
+  app.get("/api/admin/users", requireAdmin, async (req, res) => {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const search = (req.query.search as string) || "";
+      const limit = 50;
+      const offset = (page - 1) * limit;
+
+      let whereClause = "";
+      const params: any[] = [];
+      if (search) {
+        whereClause = "WHERE u.email ILIKE $1 OR u.name ILIKE $1";
+        params.push(`%${search}%`);
+      }
+
+      const countR = await pool.query(`SELECT COUNT(*) as count FROM users u ${whereClause}`, params);
+      const total = parseInt(countR.rows[0].count);
+
+      const usersR = await pool.query(
+        `SELECT u.id, u.email, u.name, u.is_admin, u.created_at,
+          COUNT(e.id) FILTER (WHERE e.id IS NOT NULL) as event_count,
+          COUNT(e.id) FILTER (WHERE e.stripe_payment_id IS NOT NULL) as paid_event_count,
+          COALESCE(SUM(CASE WHEN e.plan='pro' THEN 19.99 WHEN e.plan='business' THEN 39.99 ELSE 0 END) FILTER (WHERE e.stripe_payment_id IS NOT NULL), 0) as total_spent
+        FROM users u
+        LEFT JOIN events e ON e.user_id = u.id AND e.is_demo = 0
+        ${whereClause}
+        GROUP BY u.id
+        ORDER BY u.created_at DESC
+        LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+        [...params, limit, offset]
+      );
+
+      res.json({
+        users: usersR.rows.map(r => ({
+          id: r.id,
+          email: r.email,
+          name: r.name,
+          createdAt: r.created_at,
+          isAdmin: r.is_admin,
+          eventCount: parseInt(r.event_count),
+          paidEventCount: parseInt(r.paid_event_count),
+          totalSpent: Math.round(parseFloat(r.total_spent) * 100) / 100,
+        })),
+        total,
+        page,
+        pages: Math.ceil(total / limit),
+      });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // Admin events list
+  app.get("/api/admin/events", requireAdmin, async (req, res) => {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const search = (req.query.search as string) || "";
+      const planFilter = (req.query.plan as string) || "all";
+      const limit = 50;
+      const offset = (page - 1) * limit;
+
+      const conditions: string[] = [];
+      const params: any[] = [];
+      let paramIdx = 1;
+
+      if (search) {
+        conditions.push(`(e.name ILIKE $${paramIdx} OR e.code ILIKE $${paramIdx})`);
+        params.push(`%${search}%`);
+        paramIdx++;
+      }
+      if (planFilter === "demo") {
+        conditions.push("e.is_demo = 1");
+      } else if (planFilter !== "all") {
+        conditions.push(`e.plan = $${paramIdx} AND e.is_demo = 0`);
+        params.push(planFilter);
+        paramIdx++;
+      }
+
+      const whereClause = conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
+
+      const countR = await pool.query(`SELECT COUNT(*) as count FROM events e ${whereClause}`, params);
+      const total = parseInt(countR.rows[0].count);
+
+      const eventsR = await pool.query(
+        `SELECT e.id, e.name, e.event_type, e.code, e.plan, e.paid_at, e.stripe_payment_id,
+          e.created_at, e.host_name, e.is_demo,
+          u.email as host_email,
+          COUNT(p.id) as photo_count
+        FROM events e
+        LEFT JOIN users u ON u.id = e.user_id
+        LEFT JOIN photos p ON p.event_id = e.id
+        ${whereClause}
+        GROUP BY e.id, u.email
+        ORDER BY e.created_at DESC
+        LIMIT $${paramIdx} OFFSET $${paramIdx + 1}`,
+        [...params, limit, offset]
+      );
+
+      res.json({
+        events: eventsR.rows.map(r => ({
+          id: r.id,
+          name: r.name,
+          eventType: r.event_type,
+          code: r.code,
+          plan: r.plan,
+          photoCount: parseInt(r.photo_count),
+          paidAt: r.paid_at,
+          stripePaymentId: r.stripe_payment_id,
+          createdAt: r.created_at,
+          hostEmail: r.host_email,
+          hostName: r.host_name,
+          isDemo: r.is_demo,
+        })),
+        total,
+        page,
+        pages: Math.ceil(total / limit),
+      });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // Admin revenue
+  app.get("/api/admin/revenue", requireAdmin, async (_req, res) => {
+    try {
+      // Monthly revenue (last 12 months)
+      const monthlyR = await pool.query(
+        `SELECT
+          TO_CHAR(TO_TIMESTAMP(paid_at, 'YYYY-MM-DD"T"HH24:MI:SS'), 'Mon') as month,
+          EXTRACT(YEAR FROM TO_TIMESTAMP(paid_at, 'YYYY-MM-DD"T"HH24:MI:SS')) as year,
+          EXTRACT(MONTH FROM TO_TIMESTAMP(paid_at, 'YYYY-MM-DD"T"HH24:MI:SS')) as month_num,
+          COUNT(*) as count,
+          COALESCE(SUM(CASE WHEN plan='pro' THEN 19.99 WHEN plan='business' THEN 39.99 ELSE 0 END), 0) as revenue
+        FROM events
+        WHERE stripe_payment_id IS NOT NULL AND paid_at IS NOT NULL
+        GROUP BY month, year, month_num
+        ORDER BY year DESC, month_num DESC
+        LIMIT 12`
+      );
+
+      // Revenue by plan
+      const byPlanR = await pool.query(
+        `SELECT plan, COUNT(*) as count,
+          COALESCE(SUM(CASE WHEN plan='pro' THEN 19.99 WHEN plan='business' THEN 39.99 ELSE 0 END), 0) as revenue
+        FROM events
+        WHERE stripe_payment_id IS NOT NULL
+        GROUP BY plan`
+      );
+
+      const byPlan: Record<string, { count: number; revenue: number }> = {};
+      for (const r of byPlanR.rows) {
+        byPlan[r.plan] = { count: parseInt(r.count), revenue: Math.round(parseFloat(r.revenue) * 100) / 100 };
+      }
+
+      // Recent transactions
+      const recentR = await pool.query(
+        `SELECT e.id, e.name as event_name, e.plan,
+          CASE WHEN e.plan='pro' THEN 19.99 WHEN e.plan='business' THEN 39.99 ELSE 0 END as amount,
+          e.paid_at, u.email as host_email
+        FROM events e
+        LEFT JOIN users u ON u.id = e.user_id
+        WHERE e.stripe_payment_id IS NOT NULL
+        ORDER BY e.paid_at DESC
+        LIMIT 10`
+      );
+
+      res.json({
+        monthly: monthlyR.rows.reverse().map(r => ({
+          month: r.month,
+          revenue: Math.round(parseFloat(r.revenue) * 100) / 100,
+          count: parseInt(r.count),
+        })),
+        byPlan,
+        recent: recentR.rows.map(r => ({
+          id: r.id,
+          eventName: r.event_name,
+          plan: r.plan,
+          amount: parseFloat(r.amount),
+          paidAt: r.paid_at,
+          hostEmail: r.host_email,
+        })),
+      });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // Update user admin status
+  app.patch("/api/admin/users/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+      const { isAdmin } = req.body;
+      if (isAdmin !== 0 && isAdmin !== 1) return res.status(400).json({ error: "isAdmin must be 0 or 1" });
+      await pool.query("UPDATE users SET is_admin = $1 WHERE id = $2", [isAdmin, id]);
+      const user = await storage.getUserById(id);
+      if (!user) return res.status(404).json({ error: "User not found" });
+      res.json({ id: user.id, email: user.email, name: user.name, isAdmin: user.isAdmin });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // Delete event (admin)
+  app.delete("/api/admin/events/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+      // Delete photos first, then guestbook entries, then the event
+      await pool.query("DELETE FROM photos WHERE event_id = $1", [id]);
+      await pool.query("DELETE FROM guestbook_entries WHERE event_id = $1", [id]);
+      await pool.query("DELETE FROM events WHERE id = $1", [id]);
+      res.json({ success: true });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // Promote user to admin
+  app.post("/api/admin/promote", requireAdmin, async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) return res.status(400).json({ error: "Email is required" });
+      const user = await storage.getUserByEmail(email.toLowerCase().trim());
+      if (!user) return res.status(404).json({ error: "User not found" });
+      await pool.query("UPDATE users SET is_admin = 1 WHERE id = $1", [user.id]);
+      res.json({ id: user.id, email: user.email, name: user.name, isAdmin: 1 });
     } catch (e: any) {
       res.status(500).json({ error: e.message });
     }

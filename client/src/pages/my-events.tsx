@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { Calendar, Images, Hash, Plus, LogOut, Loader2 } from "lucide-react";
+import { Calendar, Images, Hash, Plus, LogOut, Loader2, ShieldCheck } from "lucide-react";
 import type { Event } from "@shared/schema";
 
 function LensLogo({ size = 24 }: { size?: number }) {
@@ -27,7 +27,7 @@ export default function MyEventsPage() {
   const { toast } = useToast();
   const { t } = useTranslation();
 
-  const { data: user, isLoading: userLoading } = useQuery<{ id: number; email: string; name: string; eventsCount: number } | null>({
+  const { data: user, isLoading: userLoading } = useQuery<{ id: number; email: string; name: string; eventsCount: number; isAdmin: number } | null>({
     queryKey: ["/api/auth/me"],
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
@@ -78,6 +78,14 @@ export default function MyEventsPage() {
           </button>
         </Link>
         <div className="ml-auto flex items-center gap-4">
+          {user?.isAdmin === 1 && (
+            <Link href="/admin">
+              <Button variant="ghost" size="sm" className="text-amber-600 dark:text-amber-400 text-xs" data-testid="button-admin-link">
+                <ShieldCheck className="w-3.5 h-3.5 mr-1" />
+                Admin
+              </Button>
+            </Link>
+          )}
           <span className="text-sm text-muted-foreground" data-testid="text-user-name">{user?.name}</span>
           <Button
             variant="outline"

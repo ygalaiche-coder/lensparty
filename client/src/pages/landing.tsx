@@ -562,7 +562,7 @@ export default function LandingPage() {
   const { theme, setTheme } = useTheme();
   const { t } = useTranslation();
 
-  const { data: user } = useQuery<{ id: number; email: string; name: string; eventsCount: number } | null>({
+  const { data: user } = useQuery<{ id: number; email: string; name: string; eventsCount: number; isAdmin: number } | null>({
     queryKey: ["/api/auth/me"],
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
@@ -608,6 +608,11 @@ export default function LandingPage() {
           {user && (
             <Link href="/my-events">
               <span className="text-sm text-primary font-semibold hover:text-primary/80 transition-colors cursor-pointer" data-testid="link-my-events">{t("nav.myEvents")}</span>
+            </Link>
+          )}
+          {user?.isAdmin === 1 && (
+            <Link href="/admin">
+              <span className="text-sm text-amber-600 dark:text-amber-400 font-semibold hover:text-amber-500 transition-colors cursor-pointer" data-testid="link-nav-admin">Admin</span>
             </Link>
           )}
         </nav>

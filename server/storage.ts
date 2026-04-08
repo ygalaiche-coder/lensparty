@@ -14,7 +14,7 @@ if (!DATABASE_URL) {
   throw new Error("DATABASE_URL environment variable is required. Add a PostgreSQL database to your Railway project.");
 }
 
-const pool = new pg.Pool({
+export const pool = new pg.Pool({
   connectionString: DATABASE_URL,
   ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
 });
@@ -85,6 +85,12 @@ async function initializeDatabase() {
       await client.query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS is_demo INTEGER NOT NULL DEFAULT 0;`);
     } catch (_e) {
       // Columns may already exist — ignore
+    }
+    // Add isAdmin column to users
+    try {
+      await client.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin INTEGER NOT NULL DEFAULT 0;`);
+    } catch (_e) {
+      // Column already exists — ignore
     }
     console.log("[DB] PostgreSQL tables initialized");
   } finally {
