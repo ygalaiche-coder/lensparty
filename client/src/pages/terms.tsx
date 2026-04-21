@@ -250,7 +250,6 @@ export default function TermsPage() {
       <p>If you have questions about these Terms of Service, please contact us:</p>
       <ul>
         <li><strong>Company</strong>: LensParty</li>
-        <li><strong>Owner</strong>: Ygal Aiche</li>
         <li><strong>Email</strong>: <a href="mailto:support@lensparty.com">support@lensparty.com</a></li>
       </ul>
     </LegalPage>
