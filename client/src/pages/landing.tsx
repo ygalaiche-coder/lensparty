@@ -23,6 +23,7 @@ import {
   Camera,
   Star,
   Zap,
+  Menu,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/theme-provider";
@@ -567,7 +568,10 @@ export default function LandingPage() {
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const scrollTo = (id: string) => {
+    setMobileMenuOpen(false);
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -593,57 +597,91 @@ export default function LandingPage() {
       `}</style>
 
       {/* Navigation */}
-      <header className="fixed top-0 left-0 right-0 z-50 h-16 border-b border-border/50 bg-background/80 backdrop-blur-md flex items-center px-4 md:px-6 lg:px-12">
-        <div className="flex items-center gap-2 mr-4 md:mr-8">
-          <LensLogo size={28} />
-          <span className="font-display font-bold text-lg text-foreground">LensParty</span>
-        </div>
-        <nav className="hidden md:flex items-center gap-6 flex-1">
-          <button onClick={() => scrollTo("features")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.features")}</button>
-          <button onClick={() => scrollTo("pricing")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.pricing")}</button>
-          <button onClick={() => scrollTo("how-it-works")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.howItWorks")}</button>
-          <Link href="/demo">
-            <span className="text-sm text-primary font-semibold hover:text-primary/80 transition-colors cursor-pointer" data-testid="link-nav-demo">Live Demo</span>
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
+        <div className="h-16 flex items-center px-4 md:px-6 lg:px-12">
+          <Link href="/">
+            <div className="flex items-center gap-2 mr-4 md:mr-8 cursor-pointer">
+              <LensLogo size={28} />
+              <span className="font-display font-bold text-lg text-foreground">LensParty</span>
+            </div>
           </Link>
-          {user && (
-            <Link href="/my-events">
-              <span className="text-sm text-primary font-semibold hover:text-primary/80 transition-colors cursor-pointer" data-testid="link-my-events">{t("nav.myEvents")}</span>
+          <nav className="hidden md:flex items-center gap-6 flex-1">
+            <button onClick={() => scrollTo("features")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.features")}</button>
+            <button onClick={() => scrollTo("pricing")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.pricing")}</button>
+            <button onClick={() => scrollTo("how-it-works")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{t("nav.howItWorks")}</button>
+            <Link href="/demo">
+              <span className="text-sm text-primary font-semibold hover:text-primary/80 transition-colors cursor-pointer" data-testid="link-nav-demo">Live Demo</span>
             </Link>
-          )}
-          {user?.isAdmin === 1 && (
-            <Link href="/admin">
-              <span className="text-sm text-amber-600 dark:text-amber-400 font-semibold hover:text-amber-500 transition-colors cursor-pointer" data-testid="link-nav-admin">Admin</span>
-            </Link>
-          )}
-        </nav>
-        <div className="ml-auto flex items-center gap-2 md:gap-3">
-          <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="hidden md:flex w-9 h-9 rounded-lg items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            data-testid="button-theme-toggle"
-          >
-            {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </button>
-          <LanguageSwitcher />
-          {user ? (
-            <Link href="/my-events">
-              <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 font-display font-semibold text-xs md:text-sm px-3 md:px-4" data-testid="button-nav-my-events">
-                {t("nav.myEvents")}
-              </Button>
-            </Link>
-          ) : (
-            <>
-              <Link href="/login">
-                <span className="hidden md:inline text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer font-medium" data-testid="link-sign-in">{t("nav.signIn")}</span>
+            {user && (
+              <Link href="/my-events">
+                <span className="text-sm text-primary font-semibold hover:text-primary/80 transition-colors cursor-pointer" data-testid="link-my-events">{t("nav.myEvents")}</span>
               </Link>
+            )}
+            {user?.isAdmin === 1 && (
+              <Link href="/admin">
+                <span className="text-sm text-amber-600 dark:text-amber-400 font-semibold hover:text-amber-500 transition-colors cursor-pointer" data-testid="link-nav-admin">Admin</span>
+              </Link>
+            )}
+          </nav>
+          <div className="ml-auto flex items-center gap-2 md:gap-3">
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="hidden md:flex w-9 h-9 rounded-lg items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              data-testid="button-theme-toggle"
+            >
+              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+            <div className="hidden md:block"><LanguageSwitcher /></div>
+            {user ? (
+              <Link href="/my-events">
+                <Button size="sm" className="hidden md:inline-flex bg-primary text-primary-foreground hover:bg-primary/90 font-display font-semibold" data-testid="button-nav-my-events">
+                  {t("nav.myEvents")}
+                </Button>
+              </Link>
+            ) : (
               <Link href="/login">
-                <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 font-display font-semibold text-xs md:text-sm px-3 md:px-4" data-testid="button-nav-create">
+                <Button size="sm" className="hidden md:inline-flex bg-primary text-primary-foreground hover:bg-primary/90 font-display font-semibold" data-testid="button-nav-create">
                   {t("nav.getStarted")}
                 </Button>
               </Link>
-            </>
-          )}
+            )}
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden w-9 h-9 rounded-lg flex items-center justify-center text-foreground hover:bg-muted transition-colors"
+              data-testid="button-mobile-menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
+        {/* Mobile menu dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-md px-4 py-4 flex flex-col gap-3" data-testid="mobile-menu">
+            <button onClick={() => { scrollTo("features"); setMobileMenuOpen(false); }} className="text-sm text-left text-foreground hover:text-primary transition-colors py-1">{t("nav.features")}</button>
+            <button onClick={() => { scrollTo("pricing"); setMobileMenuOpen(false); }} className="text-sm text-left text-foreground hover:text-primary transition-colors py-1">{t("nav.pricing")}</button>
+            <button onClick={() => { scrollTo("how-it-works"); setMobileMenuOpen(false); }} className="text-sm text-left text-foreground hover:text-primary transition-colors py-1">{t("nav.howItWorks")}</button>
+            <Link href="/demo" onClick={() => setMobileMenuOpen(false)}>
+              <span className="text-sm text-primary font-semibold cursor-pointer py-1 block">Live Demo</span>
+            </Link>
+            {user && (
+              <Link href="/my-events" onClick={() => setMobileMenuOpen(false)}>
+                <span className="text-sm text-primary font-semibold cursor-pointer py-1 block">{t("nav.myEvents")}</span>
+              </Link>
+            )}
+            <div className="flex items-center gap-3 pt-2 border-t border-border">
+              <LanguageSwitcher />
+              <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
+              <Link href="/login" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
+                <Button size="sm" className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-display font-semibold">
+                  {user ? t("nav.myEvents") : t("nav.getStarted")}
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Hero */}

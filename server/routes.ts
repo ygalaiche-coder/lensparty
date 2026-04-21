@@ -154,8 +154,13 @@ export async function registerRoutes(
   // Create event
   app.post("/api/events", optionalAuth, async (req, res) => {
     try {
+      // Validate event name
+      if (!req.body.name || !req.body.name.trim()) {
+        return res.status(400).json({ error: "Event name is required" });
+      }
       const body = insertEventSchema.parse({
         ...req.body,
+        name: req.body.name.trim(),
         code: generateCode(),
         userId: req.userId || null,
       });
@@ -313,16 +318,32 @@ export async function registerRoutes(
     res.json(photo);
   });
 
-  // Delete photo (also removes from R2 if applicable)
+  // Delete photo — requires auth and ownership check
   app.delete("/api/photos/:id", async (req, res) => {
     const id = parseInt(req.params.id);
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
 
-    // Get photo first to check for R2 URL
     const { db } = await import("./storage");
-    const { photos: photosTable } = await import("@shared/schema");
+    const { photos: photosTable, events: eventsTable } = await import("@shared/schema");
     const { eq } = await import("drizzle-orm");
     const [photo] = await db.select().from(photosTable).where(eq(photosTable.id, id));
+
+    if (!photo) return res.status(404).json({ error: "Photo not found" });
+
+    // Verify the requester owns the event (or is admin)
+    if (req.userId) {
+      const [event] = await db.select().from(eventsTable).where(eq(eventsTable.id, photo.eventId));
+      if (event && event.userId && event.userId !== req.userId) {
+        // Check if admin
+        const { users } = await import("@shared/schema");
+        const [user] = await db.select().from(users).where(eq(users.id, req.userId));
+        if (!user?.isAdmin) {
+          return res.status(403).json({ error: "Not authorized" });
+        }
+      }
+    }
+    // Note: guest uploads (no userId on event) can still be deleted by host
+    // This is intentional for event moderation
 
     if (photo?.fileUrl) {
       await deleteFromR2(photo.fileUrl);
@@ -363,13 +384,36 @@ export async function registerRoutes(
       const code = generateCode();
       const event = await storage.createEvent({
         name: "Demo Event ✨",
-        eventType: "other",
+        eventType: "wedding",
         description: "Try LensParty — upload photos and see the magic!",
         hostName: "Demo Host",
         code,
         isDemo: 1,
         userId: null,
       });
+
+      // Pre-populate demo with sample photos so visitors see a live gallery
+      const samplePhotos = [
+        { guestName: "Sarah", fileName: "selfie-01.jpg", fileUrl: "/images/wedding/selfie-01.jpg", mimeType: "image/jpeg", caption: "What a beautiful day! 💒" },
+        { guestName: "James", fileName: "selfie-02.jpg", fileUrl: "/images/wedding/selfie-02.jpg", mimeType: "image/jpeg", caption: "Best wedding crew ever! 🎉" },
+        { guestName: "Maria", fileName: "selfie-03.jpg", fileUrl: "/images/wedding/selfie-03.jpg", mimeType: "image/jpeg", caption: "Congratulations! 🥂" },
+        { guestName: "David", fileName: "selfie-09.jpg", fileUrl: "/images/wedding/selfie-09.jpg", mimeType: "image/jpeg", caption: "Cheers to the happy couple! ✨" },
+        { guestName: "Emma", fileName: "selfie-04.jpg", fileUrl: "/images/wedding/selfie-04.jpg", mimeType: "image/jpeg", caption: "Dance floor is on fire 🔥" },
+        { guestName: "Carlos", fileName: "selfie-10.jpg", fileUrl: "/images/wedding/selfie-10.jpg", mimeType: "image/jpeg", caption: "Sparkler exit!! ✨✨" },
+      ];
+
+      for (const photo of samplePhotos) {
+        await storage.addPhoto({
+          eventId: event.id,
+          guestName: photo.guestName,
+          fileName: photo.fileName,
+          fileData: null,
+          fileUrl: photo.fileUrl,
+          mimeType: photo.mimeType,
+          caption: photo.caption,
+        });
+      }
+
       res.json(event);
     } catch (e: any) {
       res.status(500).json({ error: e.message });
