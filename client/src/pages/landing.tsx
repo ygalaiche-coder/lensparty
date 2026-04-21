@@ -1145,6 +1145,9 @@ export default function LandingPage() {
             <button onClick={() => scrollTo("features")} className="hover:text-foreground transition-colors">{t("nav.features")}</button>
             <button onClick={() => scrollTo("pricing")} className="hover:text-foreground transition-colors">{t("nav.pricing")}</button>
             <button onClick={() => scrollTo("faq")} className="hover:text-foreground transition-colors">{t("faq.label")}</button>
+            <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+            <a href="mailto:support@lensparty.com" className="hover:text-foreground transition-colors">Support</a>
           </div>
           <div className="text-sm text-muted-foreground">© 2026 LensParty. All rights reserved.</div>
         </div>
