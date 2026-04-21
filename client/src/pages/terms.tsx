@@ -213,7 +213,7 @@ export default function TermsPage() {
 
       <h2 id="indemnification">11. Indemnification</h2>
       <p>
-        You agree to indemnify, defend, and hold harmless LensParty, its owner Ygal Aiche, and any affiliates
+        You agree to indemnify, defend, and hold harmless LensParty and any affiliates
         from and against any claims, liabilities, damages, losses, and expenses (including reasonable legal fees)
         arising out of or in connection with:
       </p>
