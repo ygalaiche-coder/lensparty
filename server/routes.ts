@@ -173,7 +173,7 @@ export async function registerRoutes(
 
   // Get event by ID (host view)
   app.get("/api/events/:id", async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
     const event = await storage.getEvent(id);
     if (!event) return res.status(404).json({ error: "Event not found" });
@@ -189,7 +189,7 @@ export async function registerRoutes(
 
   // Update event settings
   app.patch("/api/events/:id", async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
     const event = await storage.updateEvent(id, req.body);
     if (!event) return res.status(404).json({ error: "Event not found" });
@@ -198,7 +198,7 @@ export async function registerRoutes(
 
   // Generate QR code for event
   app.get("/api/events/:id/qr", async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
     const event = await storage.getEvent(id);
     if (!event) return res.status(404).json({ error: "Event not found" });
@@ -216,7 +216,7 @@ export async function registerRoutes(
   // Upload photos — supports both R2 cloud storage and legacy base64
   app.post("/api/events/:id/photos", async (req, res) => {
     try {
-      const eventId = parseInt(req.params.id);
+      const eventId = parseInt(req.params.id as string);
       if (isNaN(eventId)) return res.status(400).json({ error: "Invalid ID" });
       const event = await storage.getEvent(eventId);
       if (!event) return res.status(404).json({ error: "Event not found" });
@@ -262,7 +262,7 @@ export async function registerRoutes(
 
   // Get photos for event (lightweight listing — no base64 data)
   app.get("/api/events/:id/photos", async (req, res) => {
-    const eventId = parseInt(req.params.id);
+    const eventId = parseInt(req.params.id as string);
     if (isNaN(eventId)) return res.status(400).json({ error: "Invalid ID" });
     const eventPhotos = await storage.getPhotos(eventId);
     // Return photos without fileData (save bandwidth), but include fileUrl
@@ -272,7 +272,7 @@ export async function registerRoutes(
 
   // Get single photo data (legacy base64 fallback)
   app.get("/api/photos/:id/data", async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
     const { db } = await import("./storage");
     const { photos: photosTable } = await import("@shared/schema");
@@ -311,7 +311,7 @@ export async function registerRoutes(
 
   // Like photo
   app.post("/api/photos/:id/like", async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
     const photo = await storage.likePhoto(id);
     if (!photo) return res.status(404).json({ error: "Photo not found" });
@@ -320,7 +320,7 @@ export async function registerRoutes(
 
   // Delete photo — requires auth and ownership check
   app.delete("/api/photos/:id", async (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
 
     const { db } = await import("./storage");
@@ -356,7 +356,7 @@ export async function registerRoutes(
   // Guestbook entries
   app.post("/api/events/:id/guestbook", async (req, res) => {
     try {
-      const eventId = parseInt(req.params.id);
+      const eventId = parseInt(req.params.id as string);
       if (isNaN(eventId)) return res.status(400).json({ error: "Invalid ID" });
       const entry = await storage.addGuestbookEntry({
         eventId,
@@ -371,7 +371,7 @@ export async function registerRoutes(
   });
 
   app.get("/api/events/:id/guestbook", async (req, res) => {
-    const eventId = parseInt(req.params.id);
+    const eventId = parseInt(req.params.id as string);
     if (isNaN(eventId)) return res.status(400).json({ error: "Invalid ID" });
     const entries = await storage.getGuestbookEntries(eventId);
     res.json(entries);
@@ -689,7 +689,7 @@ export async function registerRoutes(
   // Update user admin status
   app.patch("/api/admin/users/:id", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
       const { isAdmin } = req.body;
       if (isAdmin !== 0 && isAdmin !== 1) return res.status(400).json({ error: "isAdmin must be 0 or 1" });
@@ -705,7 +705,7 @@ export async function registerRoutes(
   // Delete event (admin)
   app.delete("/api/admin/events/:id", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
       // Delete photos first, then guestbook entries, then the event
       await pool.query("DELETE FROM photos WHERE event_id = $1", [id]);
@@ -754,8 +754,8 @@ export async function registerRoutes(
       if (!plan || !eventId) {
         return res.status(400).json({ error: "Plan and eventId are required" });
       }
-      if (plan !== "pro" && plan !== "business") {
-        return res.status(400).json({ error: "Invalid plan" });
+      if (plan !== "starter" && plan !== "pro" && plan !== "business") {
+        return res.status(400).json({ error: "Invalid plan. Must be starter, pro, or business" });
       }
       const event = await storage.getEvent(eventId);
       if (!event) {
@@ -764,7 +764,7 @@ export async function registerRoutes(
       if (event.userId !== req.userId) {
         return res.status(403).json({ error: "Not your event" });
       }
-      const planInfo = PLANS[plan];
+      const planInfo = PLANS[plan as keyof typeof PLANS];
       const baseUrl = `${req.protocol}://${req.get("host")}`;
       const session = await stripe.checkout.sessions.create({
         mode: "payment",

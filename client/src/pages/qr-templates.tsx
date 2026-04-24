@@ -347,7 +347,7 @@ export default function QRTemplatesPage() {
   const templateProps: TemplateProps | null = qrData && event ? {
     qrCodeDataUri: qrData.qrCode,
     eventName: event.name,
-    eventCode: event.eventCode,
+    eventCode: event.code,
     guestUrl: qrData.guestUrl,
     heading: customHeading,
     subtitle: customSubtitle,
@@ -418,7 +418,7 @@ export default function QRTemplatesPage() {
             const previewProps: TemplateProps = {
               qrCodeDataUri: qrData.qrCode,
               eventName: event.name,
-              eventCode: event.eventCode,
+              eventCode: event.code,
               guestUrl: qrData.guestUrl,
               heading: tmpl.defaultHeading,
               subtitle: tmpl.defaultSubtitle,

@@ -159,7 +159,7 @@ export default function GuestUploadPage() {
       return res.json();
     },
     onSuccess: (_, photoId) => {
-      setLikedPhotos(prev => new Set([...prev, photoId]));
+      setLikedPhotos(prev => new Set(Array.from(prev).concat(photoId)));
       qc.invalidateQueries({ queryKey: ["/api/events", event?.id, "photos"] });
     },
   });
