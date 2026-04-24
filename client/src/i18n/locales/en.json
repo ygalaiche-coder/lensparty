@@ -5,19 +5,19 @@
     "howItWorks": "How It Works",
     "myEvents": "My Events",
     "signIn": "Sign In",
-    "getStarted": "Get Started Free"
+    "getStarted": "Get Started"
   },
   "hero": {
-    "badge": "Free QR Photo Sharing",
+    "badge": "QR Code Photo Sharing",
     "title1": "Every Guest.",
     "title2": "Every Angle.",
     "title3": "One Album.",
     "tagline": "Because every moment matters.",
-    "subtitle": "Free QR code photo sharing for your events. Guests scan, upload, and relive moments — no app needed.",
-    "cta": "Get Started Free",
+    "subtitle": "QR code photo sharing for your events. Guests scan, upload, and relive moments — no app needed.",
+    "cta": "Get Started",
     "howItWorks": "See How It Works",
-    "noCreditCard": "No credit card",
-    "freePlan": "Free forever plan",
+    "noCreditCard": "14-day money-back guarantee",
+    "freePlan": "Plans from $19.99",
     "quickSetup": "Setup in 30 seconds"
   },
   "stats": {
@@ -99,18 +99,46 @@
   "pricing": {
     "label": "Simple Pricing",
     "title": "Plans for Every Event",
-    "subtitle": "Start free, upgrade when you need more. No surprise charges.",
+    "subtitle": "Simple per-event pricing. No subscriptions, no surprises.",
     "perEvent": "per event",
-    "free": "Free",
+    "free": "Starter",
     "pro": "Pro",
     "business": "Business",
     "mostPopular": "Most Popular",
-    "startFree": "Start Free",
+    "startFree": "Get Starter",
     "getPro": "Get Pro",
     "getBusiness": "Get Business",
-    "freeFeatures": ["1 event", "Up to 100 photos", "50 guests", "30-day upload window", "6-month storage", "Basic gallery theme", "LensParty watermark"],
-    "proFeatures": ["Unlimited photos & guests", "AI face search", "Audio & video guestbook", "Live slideshow", "20+ gallery themes", "12-month upload window", "24-month storage", "No watermark"],
-    "businessFeatures": ["Everything in Pro", "5 concurrent events", "White-label branding", "RSVP management", "Analytics dashboard", "Print ordering", "AI video highlights", "Priority support"]
+    "freeFeatures": [
+      "1 event",
+      "Up to 200 photos & videos",
+      "100 guests",
+      "60-day upload window",
+      "12-month storage",
+      "5 gallery themes",
+      "No watermark",
+      "QR code & print templates"
+    ],
+    "proFeatures": [
+      "Unlimited photos & videos",
+      "Unlimited guests",
+      "AI face search",
+      "Audio & video guestbook",
+      "Live slideshow",
+      "20+ gallery themes",
+      "12-month upload window",
+      "24-month storage",
+      "Priority support"
+    ],
+    "businessFeatures": [
+      "Everything in Pro",
+      "5 concurrent events",
+      "White-label branding",
+      "RSVP management",
+      "Analytics dashboard",
+      "Print ordering",
+      "AI video highlights",
+      "Dedicated support"
+    ]
   },
   "comparison": {
     "label": "Competitive Edge",
@@ -126,10 +154,10 @@
     "title": "Frequently Asked",
     "q1": "Do guests need to download an app?",
     "a1": "No app required. Guests simply scan the QR code with their phone's camera and upload directly from their browser. It works on any modern smartphone — iOS, Android, or anything else.",
-    "q2": "How does the free plan work?",
-    "a2": "The free plan lets you create 1 event with up to 100 photos and 50 guests. Your gallery stays active for 6 months with a 30-day upload window. It's fully functional — great for smaller gatherings.",
+    "q2": "What does the Starter plan include?",
+    "a2": "The Starter plan ($19.99/event) gives you 1 event with up to 200 photos, 100 guests, 60-day upload window, and 12-month storage. Perfect for smaller events like birthday parties or baby showers.",
     "q3": "How long are photos stored?",
-    "a3": "Free plan stores photos for 6 months. Pro plan stores them for 24 months, and Business extends to 36 months. You can always download a full ZIP backup at any time.",
+    "a3": "Starter plan stores photos for 12 months. Pro plan stores them for 24 months, and Business extends to 36 months. You can always download a full ZIP backup at any time.",
     "q4": "Can I download all photos at once?",
     "a4": "Yes! The host dashboard has a 'Download All' button that packages every photo into a ZIP file. Guests can also download individual photos directly from the gallery.",
     "q5": "Is it available in other languages?",
@@ -143,7 +171,7 @@
   },
   "cta": {
     "title": "Ready to capture every moment?",
-    "subtitle": "Create your first event for free. No credit card needed.",
+    "subtitle": "Plans from $19.99 per event. 14-day money-back guarantee.",
     "button": "Get Started Free"
   },
   "trust": {
@@ -256,8 +284,8 @@
   "currency": {
     "code": "USD",
     "symbol": "$",
-    "free": "$0",
-    "pro": "$19.99",
-    "business": "$39.99"
+    "free": "$19.99",
+    "pro": "$49.99",
+    "business": "$79.99"
   }
 }

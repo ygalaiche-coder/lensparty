@@ -396,7 +396,7 @@ function ComparisonTable() {
   const rows = [
     { feature: "Free Tier", lp: "✓", gx: "✗", gc: "✗", rp: "✗" },
     { feature: "AI Face Search", lp: "✓", gx: "✗", gc: "✗", rp: "✗" },
-    { feature: "Basic Paid Price", lp: "$19.99", gx: "$49+", gc: "$49+", rp: "$20" },
+    { feature: "Basic Paid Price", lp: "$19.99", gx: "$49+", gc: "$49+", rp: "$20" }, // Starter plan
     { feature: "Storage Duration", lp: "24 months", gx: "12 months", gc: "6 months", rp: "6 months" },
     { feature: "Upload Window", lp: "12 months", gx: "90 days", gc: "30 days", rp: "30 days" },
     { feature: "Guest Limit", lp: "Unlimited", gx: "500", gc: "300", rp: "200" },
@@ -731,8 +731,8 @@ export default function LandingPage() {
               </span>
             </Link>
             <div className="flex items-center gap-4 text-xs text-muted-foreground pt-2">
-              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-green-500" />{t("hero.noCreditCard")}</div>
               <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-green-500" />{t("hero.freePlan")}</div>
+              <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-green-500" />{t("hero.noCreditCard")}</div>
               <div className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-green-500" />{t("hero.quickSetup")}</div>
             </div>
           </div>
@@ -974,7 +974,7 @@ export default function LandingPage() {
                         { feature: "Video Quality", lp: { s: "good", main: "Full HD", sub: "" }, dc: { s: "bad", main: "No Video", sub: "Photos only" }, gt: { s: "bad", main: "Pixelated", sub: "MMS limit" }, sa: { s: "warn", main: "Compressed", sub: "Save space" } },
                         { feature: "Photo Quality", lp: { s: "good", main: "Original Resolution", sub: "" }, dc: { s: "warn", main: "Varies", sub: "Film quality" }, gt: { s: "bad", main: "Compressed", sub: "Auto-shrink" }, sa: { s: "good", main: "Original", sub: "If uploaded" } },
                         { feature: "Photo Collection", lp: { s: "good", main: "Automatic", sub: "Real-time" }, dc: { s: "bad", main: "Manual", sub: "Develop film" }, gt: { s: "bad", main: "Scattered", sub: "Multiple chats" }, sa: { s: "warn", main: "Manual Upload", sub: "" } },
-                        { feature: "Cost", lp: { s: "good", main: "Free", sub: "Or from $19.99" }, dc: { s: "bad", main: "$200+", sub: "50 cameras + develop" }, gt: { s: "good", main: "Free", sub: "But painful" }, sa: { s: "good", main: "Free", sub: "Apple only" } },
+                        { feature: "Cost", lp: { s: "good", main: "From $19.99", sub: "Per event, no subscription" }, dc: { s: "bad", main: "$200+", sub: "50 cameras + develop" }, gt: { s: "good", main: "Free", sub: "But painful" }, sa: { s: "good", main: "Free", sub: "Apple only" } },
                         { feature: "Privacy", lp: { s: "good", main: "Private & Encrypted", sub: "" }, dc: { s: "good", main: "Physical", sub: "No cloud" }, gt: { s: "bad", main: "Shared Everywhere", sub: "" }, sa: { s: "warn", main: "Apple's Terms", sub: "" } },
                       ].map((row, i) => (
                         <tr key={i} className={`border-b border-border last:border-0 ${i % 2 === 0 ? "bg-background" : "bg-muted/20"}`}>
@@ -1035,34 +1035,31 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-3 gap-6 items-center">
             <AnimatedSection delay={0}>
               <PricingCard
-                plan={t("pricing.free")}
-                price={t("currency.free")}
-                cta={t("pricing.startFree")}
-                freePrice={t("currency.free")}
-                perEventLabel={t("pricing.perEvent")}
-                features={t("pricing.freeFeatures", { returnObjects: true }) as string[]}
+                plan="Starter"
+                price="$19.99"
+                cta="Get Starter"
+                perEventLabel="per event"
+                features={["1 event", "Up to 200 photos & videos", "100 guests", "60-day upload window", "12-month storage", "5 gallery themes", "No watermark", "QR code & print templates"]}
               />
             </AnimatedSection>
             <AnimatedSection delay={100}>
               <PricingCard
-                plan={t("pricing.pro")}
-                price={t("currency.pro")}
+                plan="Pro"
+                price="$49.99"
                 popular
-                cta={t("pricing.getPro")}
-                popularLabel={t("pricing.mostPopular")}
-                freePrice={t("currency.free")}
-                perEventLabel={t("pricing.perEvent")}
-                features={t("pricing.proFeatures", { returnObjects: true }) as string[]}
+                cta="Get Pro"
+                popularLabel="Most Popular"
+                perEventLabel="per event"
+                features={["Unlimited photos & videos", "Unlimited guests", "AI face search", "Audio & video guestbook", "Live slideshow", "20+ gallery themes", "12-month upload window", "24-month storage", "Priority support"]}
               />
             </AnimatedSection>
             <AnimatedSection delay={200}>
               <PricingCard
-                plan={t("pricing.business")}
-                price={t("currency.business")}
-                cta={t("pricing.getBusiness")}
-                freePrice={t("currency.free")}
-                perEventLabel={t("pricing.perEvent")}
-                features={t("pricing.businessFeatures", { returnObjects: true }) as string[]}
+                plan="Business"
+                price="$79.99"
+                cta="Get Business"
+                perEventLabel="per event"
+                features={["Everything in Pro", "5 concurrent events", "White-label branding", "RSVP management", "Analytics dashboard", "Print ordering", "AI video highlights", "Dedicated support"]}
               />
             </AnimatedSection>
           </div>

@@ -466,7 +466,7 @@ export async function registerRoutes(
         pool.query("SELECT COUNT(*) as count FROM users"),
         pool.query("SELECT COUNT(*) as count FROM events WHERE is_demo = 0"),
         pool.query("SELECT COUNT(*) as count FROM photos"),
-        pool.query("SELECT COUNT(*) as count, COALESCE(SUM(CASE WHEN plan='pro' THEN 19.99 WHEN plan='business' THEN 39.99 ELSE 0 END), 0) as revenue FROM events WHERE stripe_payment_id IS NOT NULL"),
+        pool.query("SELECT COUNT(*) as count, COALESCE(SUM(CASE WHEN plan='starter' THEN 19.99 WHEN plan='pro' THEN 49.99 WHEN plan='business' THEN 79.99 ELSE 0 END), 0) as revenue FROM events WHERE stripe_payment_id IS NOT NULL"),
         pool.query("SELECT COUNT(*) as count FROM events WHERE is_demo = 1"),
         pool.query("SELECT COUNT(*) as count FROM users WHERE created_at >= $1", [monthStart]),
         pool.query("SELECT COUNT(*) as count FROM events WHERE created_at >= $1 AND is_demo = 0", [monthStart]),
@@ -478,7 +478,7 @@ export async function registerRoutes(
 
       // Revenue this month
       const revenueMonthR = await pool.query(
-        "SELECT COALESCE(SUM(CASE WHEN plan='pro' THEN 19.99 WHEN plan='business' THEN 39.99 ELSE 0 END), 0) as revenue FROM events WHERE stripe_payment_id IS NOT NULL AND paid_at >= $1",
+        "SELECT COALESCE(SUM(CASE WHEN plan='starter' THEN 19.99 WHEN plan='pro' THEN 49.99 WHEN plan='business' THEN 79.99 ELSE 0 END), 0) as revenue FROM events WHERE stripe_payment_id IS NOT NULL AND paid_at >= $1",
         [monthStart]
       );
 
@@ -521,7 +521,7 @@ export async function registerRoutes(
         `SELECT u.id, u.email, u.name, u.is_admin, u.created_at,
           COUNT(e.id) FILTER (WHERE e.id IS NOT NULL) as event_count,
           COUNT(e.id) FILTER (WHERE e.stripe_payment_id IS NOT NULL) as paid_event_count,
-          COALESCE(SUM(CASE WHEN e.plan='pro' THEN 19.99 WHEN e.plan='business' THEN 39.99 ELSE 0 END) FILTER (WHERE e.stripe_payment_id IS NOT NULL), 0) as total_spent
+          COALESCE(SUM(CASE WHEN e.plan='starter' THEN 19.99 WHEN e.plan='pro' THEN 49.99 WHEN e.plan='business' THEN 79.99 ELSE 0 END) FILTER (WHERE e.stripe_payment_id IS NOT NULL), 0) as total_spent
         FROM users u
         LEFT JOIN events e ON e.user_id = u.id AND e.is_demo = 0
         ${whereClause}
@@ -631,7 +631,7 @@ export async function registerRoutes(
           EXTRACT(YEAR FROM TO_TIMESTAMP(paid_at, 'YYYY-MM-DD"T"HH24:MI:SS')) as year,
           EXTRACT(MONTH FROM TO_TIMESTAMP(paid_at, 'YYYY-MM-DD"T"HH24:MI:SS')) as month_num,
           COUNT(*) as count,
-          COALESCE(SUM(CASE WHEN plan='pro' THEN 19.99 WHEN plan='business' THEN 39.99 ELSE 0 END), 0) as revenue
+          COALESCE(SUM(CASE WHEN plan='starter' THEN 19.99 WHEN plan='pro' THEN 49.99 WHEN plan='business' THEN 79.99 ELSE 0 END), 0) as revenue
         FROM events
         WHERE stripe_payment_id IS NOT NULL AND paid_at IS NOT NULL
         GROUP BY month, year, month_num
@@ -642,7 +642,7 @@ export async function registerRoutes(
       // Revenue by plan
       const byPlanR = await pool.query(
         `SELECT plan, COUNT(*) as count,
-          COALESCE(SUM(CASE WHEN plan='pro' THEN 19.99 WHEN plan='business' THEN 39.99 ELSE 0 END), 0) as revenue
+          COALESCE(SUM(CASE WHEN plan='starter' THEN 19.99 WHEN plan='pro' THEN 49.99 WHEN plan='business' THEN 79.99 ELSE 0 END), 0) as revenue
         FROM events
         WHERE stripe_payment_id IS NOT NULL
         GROUP BY plan`
@@ -656,7 +656,7 @@ export async function registerRoutes(
       // Recent transactions
       const recentR = await pool.query(
         `SELECT e.id, e.name as event_name, e.plan,
-          CASE WHEN e.plan='pro' THEN 19.99 WHEN e.plan='business' THEN 39.99 ELSE 0 END as amount,
+          CASE WHEN e.plan='starter' THEN 19.99 WHEN e.plan='pro' THEN 49.99 WHEN e.plan='business' THEN 79.99 ELSE 0 END as amount,
           e.paid_at, u.email as host_email
         FROM events e
         LEFT JOIN users u ON u.id = e.user_id
