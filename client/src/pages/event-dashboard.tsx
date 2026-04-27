@@ -110,7 +110,6 @@ export default function EventDashboard() {
   const qc = useQueryClient();
   const [activeTab, setActiveTab] = useState("photos");
   const [selectedPhotos, setSelectedPhotos] = useState<Set<number>>(new Set());
-  const [selectMode, setSelectMode] = useState(false);
 
   const toggleSelect = (id: number) => {
     setSelectedPhotos(prev => {
@@ -188,7 +187,6 @@ export default function EventDashboard() {
       qc.invalidateQueries({ queryKey: ["/api/events", eventId, "photos"] });
       toast({ title: `${photoIds.length} photo${photoIds.length !== 1 ? "s" : ""} deleted` });
       setSelectedPhotos(new Set());
-      setSelectMode(false);
     },
     onError: () => {
       toast({ title: "Failed to delete some photos", variant: "destructive" });
@@ -411,71 +409,23 @@ export default function EventDashboard() {
               </div>
             ) : (
               <>
-                {/* Action bar */}
-                <div className="flex items-center justify-between mb-4 gap-3">
+                {/* Top bar: count + select all */}
+                <div className="flex items-center justify-between mb-4">
                   <p className="text-sm text-muted-foreground">
-                    {selectMode && selectedPhotos.size > 0
-                      ? `${selectedPhotos.size} selected`
+                    {selectedPhotos.size > 0
+                      ? `${selectedPhotos.size} of ${photos.length} selected`
                       : `${photos.length} photo${photos.length !== 1 ? "s" : ""}`}
                   </p>
-                  <div className="flex items-center gap-2">
-                    {/* Select mode toggle */}
-                    <Button
-                      variant={selectMode ? "default" : "outline"}
-                      size="sm"
-                      className="gap-1.5 font-display font-semibold"
-                      data-testid="button-select-mode"
-                      onClick={() => { setSelectMode(!selectMode); setSelectedPhotos(new Set()); }}
-                    >
-                      {selectMode ? "Cancel" : "Select"}
-                    </Button>
-                    {/* Select All — only in select mode */}
-                    {selectMode && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-1.5 font-display font-semibold"
-                        data-testid="button-select-all"
-                        onClick={() => selectAll(photos)}
-                      >
-                        {selectedPhotos.size === photos.length ? "Deselect All" : "Select All"}
-                      </Button>
-                    )}
-                    {/* Bulk delete — only when items selected */}
-                    {selectMode && selectedPhotos.size > 0 && (
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="gap-1.5 font-display font-semibold"
-                        data-testid="button-bulk-delete"
-                        disabled={bulkDeleteMutation.isPending}
-                        onClick={() => {
-                          if (confirm(`Delete ${selectedPhotos.size} photo${selectedPhotos.size !== 1 ? "s" : ""}? This cannot be undone.`)) {
-                            bulkDeleteMutation.mutate(Array.from(selectedPhotos));
-                          }
-                        }}
-                      >
-                        {bulkDeleteMutation.isPending
-                          ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          : <Trash2 className="w-3.5 h-3.5" />}
-                        Delete {selectedPhotos.size}
-                      </Button>
-                    )}
-                    {/* Download All — only when NOT in select mode */}
-                    {!selectMode && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-1.5 font-display font-semibold"
-                        data-testid="button-download-all"
-                        onClick={() => downloadAllPhotos(photos, event.name)}
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                        Download All
-                      </Button>
-                    )}
-                  </div>
+                  <button
+                    className="text-xs text-primary hover:underline font-semibold"
+                    data-testid="button-select-all"
+                    onClick={() => selectAll(photos)}
+                  >
+                    {selectedPhotos.size === photos.length ? "Deselect All" : "Select All"}
+                  </button>
                 </div>
+
+                {/* Photo grid — checkboxes always visible on hover */}
                 <div className="photo-grid">
                   {photos.map(photo => (
                     <PhotoCard
@@ -483,12 +433,58 @@ export default function EventDashboard() {
                       photo={photo}
                       onDelete={() => deleteMutation.mutate(photo.id)}
                       deleting={deleteMutation.isPending}
-                      selectMode={selectMode}
                       selected={selectedPhotos.has(photo.id)}
                       onSelect={() => toggleSelect(photo.id)}
                     />
+
                   ))}
                 </div>
+
+                {/* Floating action bar — appears when photos are selected */}
+                {selectedPhotos.size > 0 && (
+                  <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-foreground text-background rounded-2xl px-4 py-3 shadow-2xl shadow-black/30 animate-in fade-in slide-in-from-bottom-4 duration-200">
+                    <span className="text-sm font-semibold pr-2 border-r border-background/20">
+                      {selectedPhotos.size} selected
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="gap-1.5 text-background hover:text-background hover:bg-background/20 font-semibold"
+                      data-testid="button-bulk-download"
+                      onClick={() => {
+                        const selected = photos.filter(p => selectedPhotos.has(p.id));
+                        downloadAllPhotos(selected, event.name);
+                      }}
+                    >
+                      <Download className="w-4 h-4" />
+                      Download
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="gap-1.5 text-red-400 hover:text-red-300 hover:bg-background/20 font-semibold"
+                      data-testid="button-bulk-delete"
+                      disabled={bulkDeleteMutation.isPending}
+                      onClick={() => {
+                        if (confirm(`Delete ${selectedPhotos.size} photo${selectedPhotos.size !== 1 ? "s" : ""}? This cannot be undone.`)) {
+                          bulkDeleteMutation.mutate(Array.from(selectedPhotos));
+                        }
+                      }}
+                    >
+                      {bulkDeleteMutation.isPending
+                        ? <Loader2 className="w-4 h-4 animate-spin" />
+                        : <Trash2 className="w-4 h-4" />}
+                      Delete
+                    </Button>
+                    <button
+                      className="ml-1 text-background/60 hover:text-background transition-colors text-lg leading-none"
+                      onClick={() => setSelectedPhotos(new Set())}
+                      data-testid="button-clear-selection"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
               </>
             )}
           </TabsContent>
@@ -563,14 +559,12 @@ function PhotoCard({
   photo,
   onDelete,
   deleting,
-  selectMode = false,
   selected = false,
   onSelect,
 }: {
   photo: PhotoWithoutData;
   onDelete: () => void;
   deleting: boolean;
-  selectMode?: boolean;
   selected?: boolean;
   onSelect?: () => void;
 }) {
@@ -595,15 +589,10 @@ function PhotoCard({
 
   return (
     <div
-      className={`bg-card border rounded-xl overflow-hidden group relative transition-all cursor-pointer ${
-        selectMode
-          ? selected
-            ? "border-primary ring-2 ring-primary/40"
-            : "border-border hover:border-primary/50"
-          : "border-border"
+      className={`bg-card border rounded-xl overflow-hidden group relative transition-all ${
+        selected ? "border-primary ring-2 ring-primary/40" : "border-border"
       }`}
       data-testid={`card-photo-${photo.id}`}
-      onClick={selectMode ? onSelect : undefined}
     >
       {/* Media */}
       <div className="relative aspect-[4/3] bg-muted overflow-hidden">
@@ -636,19 +625,21 @@ function PhotoCard({
         )}
       </div>
 
-      {/* Selection checkbox */}
-      {selectMode && (
-        <div className={`absolute top-2 left-2 w-5 h-5 rounded-full border-2 flex items-center justify-center z-10 transition-all ${
-          selected ? "bg-primary border-primary" : "bg-white/80 border-muted-foreground/50"
-        }`}>
-          {selected && <Check className="w-3 h-3 text-white" />}
-        </div>
-      )}
+      {/* Checkbox — visible on hover or when selected */}
+      <button
+        className={`absolute top-2 left-2 w-5 h-5 rounded border-2 flex items-center justify-center z-10 transition-all ${
+          selected
+            ? "bg-primary border-primary opacity-100"
+            : "bg-white/90 dark:bg-black/70 border-muted-foreground/60 opacity-0 group-hover:opacity-100"
+        }`}
+        onClick={onSelect}
+        data-testid={`checkbox-photo-${photo.id}`}
+      >
+        {selected && <Check className="w-2.5 h-2.5 text-white" />}
+      </button>
 
-      {/* Overlay buttons: Delete + Download — hidden in select mode */}
-      <div className={`absolute top-2 right-2 transition-opacity flex flex-col gap-1 ${
-        selectMode ? "hidden" : "opacity-0 group-hover:opacity-100"
-      }`}>
+      {/* Overlay buttons: Delete + Download */}
+      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
         {/* Download */}
         {mediaSrc && (
           <a
