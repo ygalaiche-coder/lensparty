@@ -27,6 +27,7 @@ import {
   Sparkles,
   Printer,
   Play,
+  Check,
 } from "lucide-react";
 import type { Event, Photo, GuestbookEntry } from "@shared/schema";
 
