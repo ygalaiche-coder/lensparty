@@ -7,6 +7,8 @@ import { isCloudStorageEnabled, uploadToR2, deleteFromR2 } from "./r2";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { isPaymentsEnabled, getStripe, PLANS } from "./stripe";
+import crypto from "crypto";
+import { sendPasswordResetEmail } from "./email";
 
 const JWT_SECRET = process.env.JWT_SECRET || "lensparty-dev-secret-change-in-production";
 const COOKIE_NAME = "lensparty_token";
@@ -132,6 +134,63 @@ export async function registerRoutes(
     }
     const userEvents = await storage.getEventsByUserId(user.id);
     res.json({ id: user.id, email: user.email, name: user.name, eventsCount: userEvents.length, isAdmin: user.isAdmin });
+  });
+
+  // --- Forgot / Reset password ---
+
+  app.post("/api/auth/forgot-password", async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) return res.status(400).json({ error: "Email is required" });
+
+      const user = await storage.getUserByEmail(email.toLowerCase().trim());
+      if (user) {
+        const token = crypto.randomBytes(32).toString("hex");
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+        await pool.query(
+          "INSERT INTO password_reset_tokens (user_id, token, expires_at, created_at) VALUES ($1, $2, $3, $4)",
+          [user.id, token, expiresAt, new Date().toISOString()]
+        );
+        const baseUrl = `${req.protocol}://${req.get("host")}`;
+        const resetUrl = `${baseUrl}/#/reset-password?token=${token}`;
+        await sendPasswordResetEmail(user.email, resetUrl, user.name);
+      }
+
+      // Always return success to avoid email enumeration
+      res.json({ message: "If an account with that email exists, we've sent a reset link." });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.post("/api/auth/reset-password", async (req, res) => {
+    try {
+      const { token, newPassword } = req.body;
+      if (!token) return res.status(400).json({ error: "Reset token is required" });
+      if (!newPassword || newPassword.length < 8) {
+        return res.status(400).json({ error: "Password must be at least 8 characters" });
+      }
+
+      const result = await pool.query(
+        `SELECT prt.*, u.id as uid, u.email, u.name FROM password_reset_tokens prt
+         JOIN users u ON u.id = prt.user_id
+         WHERE prt.token = $1 AND prt.used_at IS NULL AND prt.expires_at > $2`,
+        [token, new Date().toISOString()]
+      );
+
+      if (result.rows.length === 0) {
+        return res.status(400).json({ error: "Invalid or expired reset link" });
+      }
+
+      const row = result.rows[0];
+      const passwordHash = await bcrypt.hash(newPassword, 10);
+      await pool.query("UPDATE users SET password_hash = $1 WHERE id = $2", [passwordHash, row.uid]);
+      await pool.query("UPDATE password_reset_tokens SET used_at = $1 WHERE id = $2", [new Date().toISOString(), row.id]);
+
+      res.json({ message: "Password updated successfully" });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
   });
 
   // --- My events route ---

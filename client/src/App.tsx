@@ -20,6 +20,8 @@ import DemoPage from "@/pages/demo";
 import AdminPage from "@/pages/admin";
 import PrivacyPage from "@/pages/privacy";
 import TermsPage from "@/pages/terms";
+import ForgotPasswordPage from "@/pages/forgot-password";
+import ResetPasswordPage from "@/pages/reset-password";
 
 function AppRouter() {
   return (
@@ -32,6 +34,8 @@ function AppRouter() {
       <Route path="/admin" component={AdminPage} />
       <Route path="/privacy" component={PrivacyPage} />
       <Route path="/terms" component={TermsPage} />
+      <Route path="/forgot-password" component={ForgotPasswordPage} />
+      <Route path="/reset-password" component={ResetPasswordPage} />
       <Route path="/event/:id/print" component={QRTemplatesPage} />
       <Route path="/event/:id" component={EventDashboard} />
       <Route path="/upgrade/:eventId" component={UpgradePage} />

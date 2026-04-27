@@ -81,3 +81,14 @@ export type InsertPhoto = z.infer<typeof insertPhotoSchema>;
 export type Photo = typeof photos.$inferSelect;
 export type InsertGuestbook = z.infer<typeof insertGuestbookSchema>;
 export type GuestbookEntry = typeof guestbookEntries.$inferSelect;
+
+export const passwordResetTokens = pgTable("password_reset_tokens", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  token: text("token").notNull().unique(),
+  expiresAt: text("expires_at").notNull(),
+  usedAt: text("used_at"),
+  createdAt: text("created_at").notNull(),
+});
+
+export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;

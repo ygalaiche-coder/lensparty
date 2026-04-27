@@ -92,6 +92,17 @@ async function initializeDatabase() {
     } catch (_e) {
       // Column already exists — ignore
     }
+    // Password reset tokens table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS password_reset_tokens (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        token TEXT NOT NULL UNIQUE,
+        expires_at TEXT NOT NULL,
+        used_at TEXT,
+        created_at TEXT NOT NULL
+      );
+    `);
     console.log("[DB] PostgreSQL tables initialized");
   } finally {
     client.release();

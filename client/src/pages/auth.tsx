@@ -85,6 +85,11 @@ function LoginForm() {
           />
         </div>
         {errors.password && <p className="text-destructive text-xs">{errors.password.message}</p>}
+        <div className="text-right">
+          <Link href="/forgot-password">
+            <span className="text-xs text-primary hover:underline cursor-pointer" data-testid="link-forgot-password">Forgot password?</span>
+          </Link>
+        </div>
       </div>
 
       <Button
