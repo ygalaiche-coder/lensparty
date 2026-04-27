@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, Link } from "wouter";
+import JSZip from "jszip";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,63 @@ function LensLogo({ size = 22 }: { size?: number }) {
 }
 
 type PhotoWithoutData = Omit<Photo, "fileData">;
+
+// Download all photos as a ZIP file
+async function downloadAllPhotos(photos: PhotoWithoutData[], eventName: string) {
+  if (photos.length === 0) return;
+
+  const zip = new JSZip();
+  const folder = zip.folder(eventName.replace(/[^a-z0-9]/gi, "_") || "LensParty_Event");
+
+  const toastEl = document.createElement("div");
+  toastEl.style.cssText = "position:fixed;bottom:20px;right:20px;background:#7C3AED;color:white;padding:12px 20px;border-radius:12px;font-size:14px;z-index:9999;font-family:sans-serif;";
+  toastEl.textContent = "⬇️ Preparing download...";
+  document.body.appendChild(toastEl);
+
+  try {
+    let downloaded = 0;
+    for (const photo of photos) {
+      const url = (photo as any).fileUrl || `/api/photos/${photo.id}/data`;
+      try {
+        const res = await fetch(url);
+        if (!res.ok) continue;
+        const contentType = res.headers.get("content-type") || "";
+
+        if (contentType.includes("application/json")) {
+          // Legacy base64 response
+          const data = await res.json();
+          const base64 = data.fileData;
+          const binary = atob(base64);
+          const bytes = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+          const ext = photo.mimeType?.split("/")[1] || "jpg";
+          folder?.file(`photo-${photo.id}-${photo.guestName || "guest"}.${ext}`, bytes);
+        } else {
+          // Direct image/video from R2
+          const blob = await res.blob();
+          const ext = photo.fileName?.split(".").pop() || "jpg";
+          folder?.file(`photo-${photo.id}-${photo.guestName || "guest"}.${ext}`, blob);
+        }
+        downloaded++;
+        toastEl.textContent = `⬇️ Downloading ${downloaded}/${photos.length}...`;
+      } catch {
+        // Skip failed downloads
+      }
+    }
+
+    const content = await zip.generateAsync({ type: "blob" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(content);
+    link.download = `${eventName.replace(/[^a-z0-9]/gi, "_")}_photos.zip`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    toastEl.textContent = `✅ Downloaded ${downloaded} photos!`;
+    setTimeout(() => toastEl.remove(), 3000);
+  } catch (e) {
+    toastEl.textContent = "❌ Download failed. Try again.";
+    setTimeout(() => toastEl.remove(), 3000);
+  }
+}
 
 export default function EventDashboard() {
   const params = useParams<{ id: string }>();
@@ -318,16 +376,32 @@ export default function EventDashboard() {
                 <p className="text-muted-foreground text-sm max-w-xs">{t("dashboard.noPhotosDesc")}</p>
               </div>
             ) : (
-              <div className="photo-grid">
-                {photos.map(photo => (
-                  <PhotoCard
-                    key={photo.id}
-                    photo={photo}
-                    onDelete={() => deleteMutation.mutate(photo.id)}
-                    deleting={deleteMutation.isPending}
-                  />
-                ))}
-              </div>
+              <>
+                {/* Download All bar */}
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-sm text-muted-foreground">{photos.length} photo{photos.length !== 1 ? "s" : ""}</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 font-display font-semibold"
+                    data-testid="button-download-all"
+                    onClick={() => downloadAllPhotos(photos, event.name)}
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    Download All
+                  </Button>
+                </div>
+                <div className="photo-grid">
+                  {photos.map(photo => (
+                    <PhotoCard
+                      key={photo.id}
+                      photo={photo}
+                      onDelete={() => deleteMutation.mutate(photo.id)}
+                      deleting={deleteMutation.isPending}
+                    />
+                  ))}
+                </div>
+              </>
             )}
           </TabsContent>
 
@@ -458,8 +532,21 @@ function PhotoCard({
         )}
       </div>
 
-      {/* Delete overlay */}
-      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+      {/* Overlay buttons: Delete + Download */}
+      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
+        {/* Download */}
+        {mediaSrc && (
+          <a
+            href={mediaSrc}
+            download={photo.fileName || `photo-${photo.id}`}
+            className="w-7 h-7 rounded-lg bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors"
+            data-testid={`button-download-photo-${photo.id}`}
+            onClick={e => e.stopPropagation()}
+          >
+            <Download className="w-3 h-3" />
+          </a>
+        )}
+        {/* Delete */}
         <button
           onClick={onDelete}
           disabled={deleting}
